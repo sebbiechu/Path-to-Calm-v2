@@ -1,0 +1,687 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Layout */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #ffffff;
+  color: #2c2c2c;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+
+/* Scrollable text content inside info-panel */
+.scrollable-text {
+  overflow-y: auto;
+  max-height: 320px; /* Adjust as needed */
+  padding-right: 10px;
+  margin-top: 20px;
+}
+
+/* Info Panel */
+.info-panel {
+  background: #f7f7f7;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid #e0e0e0;
+  padding: 40px 50px 100px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.info-scrollable {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 10px;
+}
+
+/* Make sure the content scrolls nicely */
+.info-scrollable h2,
+.info-scrollable h4,
+.info-scrollable p {
+  margin-bottom: 15px;
+}
+
+.info-logo {
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.bottom-logo {
+  width: 7vw;
+  max-width: 160px;
+  height: auto;
+}
+
+/* Hide by default */
+.scroll-hint {
+  display: none;
+}
+
+/* Show only on iPads (landscape & portrait) */
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: landscape), 
+only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: portrait) {
+  
+  .scroll-hint {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #ec008c;
+    margin-top: 5px;
+    animation: scrollFade 1.5s ease-in-out infinite;
+    user-select: none;
+  }
+}
+
+@keyframes scrollFade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+
+.logo-container {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  z-index: 5;
+}
+
+.tech-icons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: center;
+  border-bottom: 2px solid #cacaca;
+  padding-bottom: 20px;
+}
+
+.tech-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.tech-icon img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 4px;
+}
+
+#inhaleDuration,
+#holdDuration,
+#exhaleDuration {
+  display: block;
+  margin-top: 4px;
+}
+
+#overview {
+  border-bottom: 2px solid #cacaca;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.info-panel h2 {
+  font-size: 2.5rem;
+  color: #343d46;
+  margin-bottom: 0.3em;
+}
+
+.info-panel h4 {
+  font-size: 1rem;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #343d46;
+}
+
+.info-panel p {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Main Panel */
+.breathing-panel {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-shadow: 7px 0px 30px 0px #b3b3b3;
+}
+
+.pulse-container {
+  position: relative;
+  width: 540px;
+  height: 540px;
+  margin: 20px 0 110px;
+}
+
+@media (max-width: 1100px) {
+  .pulse-container {
+    width: 380px;
+    height: 380px;
+    margin: 20px 0 80px;
+  }
+}
+
+.pulse-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f7b2d9, #b2d9f7);
+  box-shadow: 0 0 30px rgba(255, 144, 200, 0.3);
+  transition: transform 1.5s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out, background 1.2s ease-in-out;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #fff;
+  width: 100%;
+}
+
+/* Arrow Buttons */
+.arrow-button {
+  position: absolute;
+  top: calc(50% - 20px);
+  width: 40px;
+  height: 40px;
+  background: #eee;
+  color: #333;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  z-index: 2;
+  transition: background 0.3s ease;
+}
+
+.arrow-button:hover {
+  background: #ddd;
+}
+
+.arrow-button.left {
+  left: calc(35% - 220px);
+}
+
+.arrow-button.right {
+  right: calc(35% - 220px);
+}
+
+@media (max-width: 1100px) {
+  .arrow-button.left {
+    left: calc(42% - 220px);
+  }
+
+  .arrow-button.right {
+    right: calc(42% - 220px);
+  }
+}
+
+/* Fade Numbers Countdown */
+.fade-text {
+  font-size: 3.5rem;
+  color: #ffffff;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.fade-text.show {
+  opacity: 1;
+}
+
+/* Thank You Modal Styling */
+.thank-you-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+.thank-you-modal {
+  background: #fff;
+  color: #222;
+  max-width: 480px;
+  padding: 40px 30px 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.thank-you-modal h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #f65db8;
+}
+
+.thank-you-modal p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+#prizeBtn {
+  background: #2c2c2c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 20px;
+}
+
+
+/* XP / Progress */
+#progress,
+#xpLabel {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+#xpBarWrapper {
+  width: 200px;
+  height: 8px;
+  background: #eee;
+  border-radius: 5px;
+  margin: 8px 0 20px;
+  overflow: hidden;
+}
+
+#xpFill {
+  height: 100%;
+  width: 0%;
+  background: #f25c9a;
+  transition: width 0.4s ease;
+}
+
+/* Badges Unlocked */
+
+.achievement-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 5vw;
+  padding-bottom: 10px;
+}
+
+.badge {
+  width: 50px;
+  height: auto;
+  transition: all 0.4s ease;
+}
+
+.badge.locked {
+  filter: grayscale(100%) brightness(0.7);
+  opacity: 0.4;
+}
+
+.badge.unlocked {
+  filter: none;
+  opacity: 1;
+}
+
+
+/* Button + Timer Row */
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn {
+  background: #2c2c2c;
+  color: white;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.phase-timer {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Achievement Modal */
+.achievement-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+.achievement-modal {
+  background: #fff;
+  color: #222;
+  max-width: 480px;
+  padding: 40px 30px 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+.achievement-icon {
+  width: 160px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.achievement-modal h2 {
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.achievement-modal h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #f65db8;
+}
+
+.achievement-modal p {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.achievement-modal button {
+  margin-top: 10px;
+  background: #2c2c2c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+/* Achievement Modal Buttons */
+.achievement-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Repeat button with icon */
+#repeatBtn {
+  background: #3d4452;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 30px;
+  padding: 17px 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#repeatBtn:hover {
+  background: #6f788b;
+}
+
+#repeatBtn img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Close button (Continue/Advance) */
+#restartBtn {
+  background: none;
+  color: black;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+
+
+/* Divider Space */
+
+hr.solid {
+  
+  margin: 10px;
+}
+
+p.message {
+  color: #f65db8;
+  font-weight: 700;
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+}
+
+/* Consent */
+#consentBanner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #333;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+  z-index: 9999;
+  max-width: 90%;
+  width: fit-content;
+}
+
+#consentBanner button {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+
+/* Pop up Instructions */
+/* Overlay background */
+.modern-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Modal card */
+.modern-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Hero image */
+.modal-image {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto 24px;
+  display: block;
+}
+
+/* Typography */
+.modern-modal h2 {
+  font-size: 1.8em;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
+.modern-modal p {
+  font-size: 1em;
+  color: #4B5563;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.modal-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 20px;
+  color: #374151;
+}
+
+.modal-list li {
+  margin-bottom: 8px;
+}
+
+/* Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.primary-btn {
+  background: linear-gradient(to right, #6366f1, #7c3aed);
+  color: white;
+  padding: 12px 24px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.primary-btn:hover {
+  background: linear-gradient(to right, #7c3aed, #6366f1);
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Hide scrollbars in modal */
+.modern-modal {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.modern-modal::-webkit-scrollbar {
+  display: none;
+}
+
+
+.desktop-layout {
+  width: 100%;
+}
