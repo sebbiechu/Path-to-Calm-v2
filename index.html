@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Path to Calm 🪷</title>
+  <link rel="stylesheet" href="styles/style.css" />
+  <link rel="stylesheet" href="styles/instructions.css" />
+  <link rel="stylesheet" href="styles/mobile.css" />
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8ecae6">
+
+</head>
+<body>
+
+  <!-- Achievement Modal -->
+<div class="achievement-modal-overlay" id="overlay">
+  <div class="achievement-modal">
+    <img id="achievementImage" src="images/cloudwalker.png" alt="Achievement" class="achievement-icon" />
+    <h2>Achievement Unlocked</h2>
+    <h3 id="achievementTitle">Cloudwalker</h3>
+    <p id="achievementDescription">You’ve just completed your very first breathing session.<br><br>Like a monk rising above the misty mountains, you've taken your first step on a journey toward inner peace. <br>Breathe it in—this is your moment.</p>
+    <hr class="solid">
+    <p class="message">Take a deep breath—and choose to repeat or continue your journey.</p>
+
+    <!-- Repeat & Close Buttons -->
+    <div class="achievement-buttons">
+      <button id="repeatBtn" class="btn-icon">
+        <img src="images/repeat.svg" alt="Repeat" />
+        Repeat
+      </button>
+      <button id="restartBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="desktop-layout">
+
+<div class="layout">
+  <!-- Info Panel -->
+  <aside class="info-panel" id="infoPanel">
+    
+
+    <!-- 🎖️ Badge Tracker inside info panel -->
+<div class="achievement-track">
+  <img id="badgeCloudwalker" src="images/cloudwalker.png" class="badge locked" alt="Cloudwalker Badge" />
+  <img id="badgeLunaguide" src="images/lunaguide.png" class="badge locked" alt="Lunaguide Badge" />
+  <img id="badgePetalmind" src="images/petalmind.png" class="badge locked" alt="Petalmind Badge" />
+</div>
+
+    <div class="tech-icons">
+      <div class="tech-icon">
+        <img src="images/inhale.svg" alt="Inhale" />
+        <span id="inhaleDuration">Inhale</span>
+      </div>
+      <div class="tech-icon">
+        <img src="images/hold.svg" alt="Hold" />
+        <span id="holdDuration">Hold</span>
+      </div>
+      <div class="tech-icon">
+        <img src="images/exhale.svg" alt="Exhale" />
+        <span id="exhaleDuration">Exhale</span>
+      </div>
+    </div>
+    <h2 id="techniqueTitle">Classic</h2>
+
+    <div class="scroll-hint">↓ Scroll down for more ↓</div>
+
+    <div class="info-scrollable">
+
+      <h4 id="overview">Overview</h4>
+      <p id="techniqueOverview">A balanced technique ideal for beginners. Helps create rhythm and calm the nervous system.</p>
+      <h4>Tips</h4>
+      <p id="techniqueTips">Breathe in through your nose, hold gently, and exhale through the mouth. Stay relaxed.</p>
+    </div>
+    <!-- Top-left logo -->
+    <div class="info-logo">
+      <img src="images/people.svg" alt="People Development" class="bottom-logo" />
+    </div>
+  </aside>
+
+  <!-- Main Panel -->
+  <main class="breathing-panel">
+    <div class="arrow-button left" id="prevBtn">&#10094;</div>
+
+    <div class="pulse-container">
+      <div class="pulse-circle" id="pulseCircle">
+        <div class="gradient-overlay" id="gradientOverlay"></div>
+      </div>
+      <div class="label">
+  <div id="phaseLabel" class="fade-text">Ready</div>
+</div>
+
+    </div>
+
+    <div class="arrow-button right" id="nextBtn">&#10095;</div>
+
+    <div id="progress">0 / 3</div>
+    <div id="xpLabel">XP: 0 / 150</div>
+    <div id="xpBarWrapper"><div id="xpFill"></div></div>
+
+    <div class="button-row">
+      <button class="btn" id="controlBtn">Start</button>
+    </div>
+  </main>
+</div>
+
+<!-- Audio -->
+<audio id="inhaleSound" src="sounds/inhale.mp3" preload="auto"></audio>
+<audio id="exhaleSound" src="sounds/exhale.mp3" preload="auto"></audio>
+<audio id="holdSound" src="sounds/hold.mp3" preload="auto"></audio>
+
+
+
+
+<!-- Thank You Modal -->
+<div class="thank-you-modal-overlay" id="thankYouOverlay">
+  <div class="thank-you-modal">
+    <img src="images/thankyou.png" alt="Thank You" class="achievement-icon" />
+    <h2>Thank You</h2>
+    <p>Thank you for taking part in this breathing journey. We hope it brought you a moment of calm and clarity.</p>
+    <p>You can now enter our prize draw below.</p>
+    <a href="https://forms.microsoft.com/your-link-here" target="_blank">
+      <button id="prizeBtn">Enter Prize Draw</button>
+    </a>
+  </div>
+</div>
+
+
+<!-- Pop-up Instructions-->
+<div id="onboardingModal" class="onboarding-overlay">
+  <div class="onboarding-modal">
+    <div class="onboarding-slide active" data-slide="0">
+      <img src="images/welcome.png" alt="Welcome" class="onboarding-image">
+      <h2>Welcome to <em>Path to Calm</em></h2>
+      <p>Your space to slow down and reconnect.</p>
+    </div>
+
+    <div class="onboarding-slide" data-slide="1">
+      <img src="images/focus.png" alt="Focus" class="onboarding-image">
+      <h2>Take a Mindful Pause</h2>
+      <p>In just a few minutes, you’ll breathe through guided rhythms designed to help you slow down, reset, and feel in control.</p>
+    </div>
+
+<div class="onboarding-slide" data-slide="2">
+  <img src="images/techniques.png" alt="Techniques" class="onboarding-image">
+  <h2>Choose Your Breathing Style</h2>
+  <p>Use the arrows beneath the breathing circle to explore each technique. Every style offers a different rhythm to help you focus, relax, or feel restored.</p>
+</div>
+
+<!-- Slide 4: Achievement Badges -->
+<div class="onboarding-slide" data-slide="3">
+  <img src="images/achievements.png" alt="Achievements" class="onboarding-image">
+  <h2>Earn Calming Achievements</h2>
+  <p>Complete a session to unlock badges like <strong>Cloudwalker</strong>, <strong>Lunaguide</strong>, and <strong>Petalmind</strong>.</p>
+  <p>Every full breathing cycle helps you progress on your path to calm.</p>
+</div>
+
+    <div class="onboarding-controls">
+      <div class="dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      
+      <div class="buttons">
+        <button id="skipIntroBtn" class="secondary-btn">Skip</button>
+        <button id="nextSlideBtn" class="primary-btn">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Mobile Version Only -->
+<div class="mobile-layout">
+<div class="mobile-app">
+  <div class="top-bar">
+    <div class="icon"><img src="images/inhale.svg" alt="Inhale"><span>Inhale:</span></div>
+    <div class="icon"><img src="images/hold.svg" alt="Hold"><span>Hold:</span></div>
+    <div class="icon"><img src="images/exhale.svg" alt="Exhale"><span>Exhale:</span></div>
+  </div>
+<div class="mainmobile">
+  <h2 class="technique-title">4-7-8 Breathing</h2>
+
+  <div class="breathing-circle">
+    <div class="phase-overlay">
+      <div id="mobilePhaseLabel" class="phase-label"></div>
+    </div>
+  </div>
+  
+
+  <div class="technique-indicators">
+    <span class="dot active"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+  </div>
+
+  <div class="bottom-controls">
+    <button class="info-btn">i</button>
+    <button class="start-btn">Start</button>
+  </div>
+
+  <div class="achievements">
+    <img id="badgeCloudwalker" src="images/cloudwalker.png" class="badge locked" alt="Cloudwalker Badge" />
+    <img id="badgeLunaguide" src="images/lunaguide.png" class="badge locked" alt="Lunaguide Badge" />
+    <img id="badgePetalmind" src="images/petalmind.png" class="badge locked" alt="Petalmind Badge" />
+  </div>
+  
+  
+
+  <!-- Info Modal for Mobile -->
+<div id="infoModal" class="mobile-info-modal hidden">
+  <div class="modal-content">
+    <button id="closeInfo" class="close-btn">×</button>
+    <h3>Overview</h3>
+    <p id="techniqueOverviewMobile">A calming technique to balance breath and focus the mind.</p>
+    <h3>Tips</h3>
+    <p id="techniqueTipsMobile">Breathe in deeply through your nose, hold gently, and exhale slowly through your mouth.</p>
+  </div>
+</div>
+
+  
+</div>
+</div>
+
+</div>
+
+<script src="scripts/audio.js"></script>
+<script src="scripts/techniques.js"></script>
+<script src="scripts/achievements.js"></script>
+<script src="scripts/script.js"></script>
+<script src="scripts/secret-trigger.js"></script>
+<script src="scripts/badge-tracker.js"></script>
+<script src="scripts/mobile.js"></script>
+
+<!-- Hidden dev/test button to trigger achievement screen -->
+<button id="secretTrigger" style="position:fixed; bottom:10px; right:10px; width:30px; height:30px; background:transparent; border:none; opacity:0.01; z-index:9999;">&nbsp;</button>
+
+
+
+</body>
+</html>
