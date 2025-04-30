@@ -1,13 +1,22 @@
 function setMobileViewportHeight() {
   const mobileApp = document.querySelector('.mobile-app');
   if (mobileApp) {
-    mobileApp.style.height = `${window.innerHeight}px`;
-    console.log(`📏 Set .mobile-app height to ${window.innerHeight}px`);
+    const height = window.innerHeight;
+    mobileApp.style.height = `${height}px`;
+    mobileApp.style.maxHeight = `${height}px`;
+    console.log(`📏 .mobile-app height set to ${height}px`);
   }
 }
 
-window.addEventListener('load', setMobileViewportHeight);
-window.addEventListener('resize', setMobileViewportHeight);
+// Run after layout is stable
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(setMobileViewportHeight, 100); // delay ensures accurate height
+});
+
+// Update on resize or orientation change
+window.addEventListener('resize', () => {
+  setTimeout(setMobileViewportHeight, 100);
+});
 
 
 function initMobileApp() {
