@@ -1,3 +1,5 @@
+console.log("📱 mobile.js loaded");
+
 function initMobileApp() {
     const techniques = [
       { name: "Classic", inhale: 3, hold: 3, exhale: 3 },
@@ -347,6 +349,10 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
         console.log("✅ Fully loaded on mobile, starting app.");
         clearInterval(interval);
         initMobileApp();
+        console.log("initMobileApp running...");
+        console.log("Found .start-btn:", document.querySelector(".start-btn"));
+        console.log("Found .mobile-layout:", document.querySelector(".mobile-layout"));
+
       }
     }, 100);
   });
