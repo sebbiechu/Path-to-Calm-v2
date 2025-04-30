@@ -8,6 +8,7 @@ function initMobileApp() {
     let currentTechniqueIndex = 0;
     let currentTechnique = techniques[currentTechniqueIndex];
 
+ 
     // DOM elements
     const mobileApp = document.querySelector(".mobile-app");
     const infoBtn = document.querySelector(".info-btn");
