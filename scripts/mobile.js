@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
-  if (window.innerWidth <= 600) {
+function initMobileApp() {
     const techniques = [
       { name: "Classic", inhale: 3, hold: 3, exhale: 3 },
       { name: "Box Breathing", inhale: 4, hold: 4, exhale: 4 },
@@ -331,4 +330,11 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
 
     updateMobileUI(currentTechnique);
   }
-});
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const mobileLayout = document.querySelector(".mobile-layout");
+    if (mobileLayout && mobileLayout.offsetParent !== null) {
+      initMobileApp();
+    }
+  });
+  
