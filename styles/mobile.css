@@ -1,5 +1,12 @@
 
 /* Mobile Layout - Matching Desktop Styles */
+:root {
+  --vh: 1vh;
+}
+
+.mobile-app {
+  height: calc(var(--vh, 1vh) * 100);
+}
 
 .mobile-layout {
   width: 100%;
