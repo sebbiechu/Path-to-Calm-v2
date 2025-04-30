@@ -1,13 +1,4 @@
 
-/* Mobile Layout - Matching Desktop Styles */
-:root {
-  --vh: 1vh;
-}
-
-.mobile-app {
-  height: calc(var(--vh, 1vh) * 100);
-}
-
 .mobile-layout {
   width: 100%;
   display: none;
@@ -56,7 +47,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: 100vh;
     background-color: #f9f9f9;
     font-family: 'Segoe UI', sans-serif;
     position: relative;

@@ -1,9 +1,13 @@
-function setRealViewportHeight() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
+function setMobileViewportHeight() {
+  const mobileApp = document.querySelector('.mobile-app');
+  if (mobileApp) {
+    mobileApp.style.height = `${window.innerHeight}px`;
+    console.log(`📏 Set .mobile-app height to ${window.innerHeight}px`);
+  }
 }
-setRealViewportHeight();
-window.addEventListener('resize', setRealViewportHeight);
+
+window.addEventListener('load', setMobileViewportHeight);
+window.addEventListener('resize', setMobileViewportHeight);
 
 
 function initMobileApp() {
