@@ -332,21 +332,23 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
     updateMobileUI(currentTechnique);
   }
 
-  requestAnimationFrame(() => {
+  function waitForMobileLayoutAndInit() {
     const mobileLayout = document.querySelector(".mobile-layout");
-    const isMobileVisible = mobileLayout && getComputedStyle(mobileLayout).display !== "none";
   
-    if (isMobileVisible) {
+    if (
+      mobileLayout &&
+      getComputedStyle(mobileLayout).display !== "none" &&
+      document.querySelector(".start-btn") !== null
+    ) {
+      console.log("✅ Mobile layout detected. Initializing app...");
       initMobileApp();
     } else {
-      // Fallback retry after layout settles (especially for iOS)
-      setTimeout(() => {
-        const tryAgainLayout = document.querySelector(".mobile-layout");
-        if (tryAgainLayout && getComputedStyle(tryAgainLayout).display !== "none") {
-          initMobileApp();
-        }
-      }, 100);
+      console.log("⏳ Waiting for mobile layout...");
+      setTimeout(waitForMobileLayoutAndInit, 100);
     }
-  });
+  }
+  
+  waitForMobileLayoutAndInit();
+  
   
   
