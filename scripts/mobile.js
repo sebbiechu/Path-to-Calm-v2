@@ -332,10 +332,21 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
     updateMobileUI(currentTechnique);
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  requestAnimationFrame(() => {
     const mobileLayout = document.querySelector(".mobile-layout");
-    if (mobileLayout && mobileLayout.offsetParent !== null) {
+    const isMobileVisible = mobileLayout && getComputedStyle(mobileLayout).display !== "none";
+  
+    if (isMobileVisible) {
       initMobileApp();
+    } else {
+      // Fallback retry after layout settles (especially for iOS)
+      setTimeout(() => {
+        const tryAgainLayout = document.querySelector(".mobile-layout");
+        if (tryAgainLayout && getComputedStyle(tryAgainLayout).display !== "none") {
+          initMobileApp();
+        }
+      }, 100);
     }
   });
+  
   
