@@ -36,7 +36,7 @@
 @media screen and (max-width: 600px) {
 
   body {
-    height: auto;
+    height: 0;
   }
 
   .desktop-layout {
