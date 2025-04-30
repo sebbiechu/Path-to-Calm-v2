@@ -332,20 +332,25 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
     updateMobileUI(currentTechnique);
   }
 
-  function waitForMobileAndInit() {
-    const isMobileScreen = window.matchMedia("(max-width: 600px)").matches;
-    const startButton = document.querySelector(".start-btn");
+  window.addEventListener("load", () => {
+    // ✅ Runs only when EVERYTHING (DOM + styles + layout) is ready
+    const interval = setInterval(() => {
+      const mobileLayout = document.querySelector(".mobile-layout");
+      const startButton = document.querySelector(".start-btn");
   
-    if (isMobileScreen && startButton) {
-      console.log("✅ Real mobile screen detected. Initializing mobile app...");
-      initMobileApp();
-    } else {
-      console.log("⏳ Waiting for mobile screen or button...");
-      setTimeout(waitForMobileAndInit, 100);
-    }
-  }
+      const isVisible =
+        mobileLayout &&
+        getComputedStyle(mobileLayout).display !== "none" &&
+        startButton;
   
-  waitForMobileAndInit();
+      if (isVisible) {
+        console.log("✅ Fully loaded on mobile, starting app.");
+        clearInterval(interval);
+        initMobileApp();
+      }
+    }, 100);
+  });
+  
   
   
   
