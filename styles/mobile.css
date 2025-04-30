@@ -24,6 +24,13 @@
     opacity: 1 !important;
   }
   
+  .mobile-progress {
+    text-align: center;
+    margin-top: 5px;
+    font-size: 1.2em;
+    color: #555;
+    font-weight: bold;
+  }
   
   
 

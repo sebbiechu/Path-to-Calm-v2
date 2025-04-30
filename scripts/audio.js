@@ -23,10 +23,23 @@ async function initAudioContext() {
   await Promise.all(promises);
 }
 
+
 function playPhaseSound(label) {
   if (!audioCtx || !audioBuffers[label]) return;
   const source = audioCtx.createBufferSource();
   source.buffer = audioBuffers[label];
   source.connect(audioCtx.destination);
   source.start(0);
+}
+
+function resumeAudioContext() {
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+
+async function prepareAudio() {
+  await initAudioContext();
+  await resumeAudioContext();
 }

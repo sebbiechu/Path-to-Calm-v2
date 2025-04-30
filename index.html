@@ -3,12 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path to Calm 🪷</title>
+  <title>Path to Calm • Guided Breathing</title>
   <link rel="stylesheet" href="styles/style.css" />
   <link rel="stylesheet" href="styles/instructions.css" />
   <link rel="stylesheet" href="styles/mobile.css" />
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" sizes="32x32" href="images/favicon-32x32.png" />
+  <link rel="icon" sizes="192x192" href="images/favicon-192.png" />
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+
 <meta name="theme-color" content="#8ecae6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 
 </head>
 <body>
@@ -111,22 +118,6 @@
 <audio id="holdSound" src="sounds/hold.mp3" preload="auto"></audio>
 
 
-
-
-<!-- Thank You Modal -->
-<div class="thank-you-modal-overlay" id="thankYouOverlay">
-  <div class="thank-you-modal">
-    <img src="images/thankyou.png" alt="Thank You" class="achievement-icon" />
-    <h2>Thank You</h2>
-    <p>Thank you for taking part in this breathing journey. We hope it brought you a moment of calm and clarity.</p>
-    <p>You can now enter our prize draw below.</p>
-    <a href="https://forms.microsoft.com/your-link-here" target="_blank">
-      <button id="prizeBtn">Enter Prize Draw</button>
-    </a>
-  </div>
-</div>
-
-
 <!-- Pop-up Instructions-->
 <div id="onboardingModal" class="onboarding-overlay">
   <div class="onboarding-modal">
@@ -183,7 +174,9 @@
     <div class="icon"><img src="images/exhale.svg" alt="Exhale"><span>Exhale:</span></div>
   </div>
 <div class="mainmobile">
-  <h2 class="technique-title">4-7-8 Breathing</h2>
+  <h2 class="technique-title">Classic</h2>
+  <div id="mobileProgress" class="mobile-progress">0 / 2</div>
+
 
   <div class="breathing-circle">
     <div class="phase-overlay">
@@ -200,7 +193,7 @@
 
   <div class="bottom-controls">
     <button class="info-btn">i</button>
-    <button class="start-btn">Start</button>
+    <button class="start-btn" id="startAppBtn">Start</button>
   </div>
 
 <!-- Inside .mobile-layout -->
@@ -209,9 +202,6 @@
   <img id="badgeLunaguideMobile" src="images/lunaguide.png" class="badge locked" alt="Lunaguide Badge" />
   <img id="badgePetalmindMobile" src="images/petalmind.png" class="badge locked" alt="Petalmind Badge" />
 </div>
-
-  
-  
 
   <!-- Info Modal for Mobile -->
 <div id="infoModal" class="mobile-info-modal hidden">
@@ -228,18 +218,31 @@
 </div>
 </div>
 
+
+
 </div>
 
-<script src="scripts/audio.js"></script>
-<script src="scripts/techniques.js"></script>
-<script src="scripts/achievements.js"></script>
-<script src="scripts/script.js"></script>
-<script src="scripts/secret-trigger.js"></script>
-<script src="scripts/badge-tracker.js"></script>
-<script src="scripts/mobile.js"></script>
+<!-- Thank You Modal -->
+<div class="thank-you-modal-overlay" id="thankYouOverlay">
+  <div class="thank-you-modal">
+    <img src="images/thankyou.png" alt="Thank You" class="achievement-icon" />
+    <h2>Thank You</h2>
+    <p>Thank you for taking part in this breathing journey. We hope it brought you a moment of calm and clarity.</p>
+    <p>You can now enter our prize draw below.</p>
+    <a href="https://forms.office.com/pages/responsepage.aspx?id=-QiCXGC1CUmQO1pcxbHUWqR78niEShhPljkrWBn5zSVUN1VZRk1VVlU0OTBKQzVBMlhRM1hUQUgxQS4u&route=shorturl" target="_blank">
+      <button id="prizeBtn">Enter Prize Draw</button>
+    </a>
+  </div>
+</div>
 
-<!-- Hidden dev/test button to trigger achievement screen -->
-<button id="secretTrigger" style="position:fixed; bottom:10px; right:10px; width:30px; height:30px; background:transparent; border:none; opacity:0.01; z-index:9999;">&nbsp;</button>
+<!-- Shared scripts first -->
+<script src="scripts/audio.js" defer></script>
+<script src="scripts/achievements.js" defer></script>
+<script src="scripts/badge-tracker.js" defer></script>
+
+<!-- Always load both breathing scripts -->
+<script src="scripts/desktop.js" defer></script>
+<script src="scripts/mobile.js" defer></script>
 
 
 
