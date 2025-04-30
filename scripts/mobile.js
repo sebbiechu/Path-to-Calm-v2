@@ -155,12 +155,6 @@ if (bottomBadge) {
         hold: "Hold"
       };
       playPhaseSound(labelMap[type]);
-
-      const audio = soundMap[type];
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(() => {});
-      }
     }
 
     function fadeMobileText(element, text, delay = 0) {
