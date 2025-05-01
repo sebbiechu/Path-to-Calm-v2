@@ -1,3 +1,5 @@
+
+
 if (window.innerWidth > 600) {
   window.addEventListener("DOMContentLoaded", function () {
     console.log("Desktop breathing loaded");
@@ -272,3 +274,16 @@ if (window.innerWidth > 600) {
     }
   });
 }
+
+setInterval(function() {
+  const element = document.getElementById('bounceDiv');
+  
+  // Reset the animation by removing and re-adding the class
+  element.classList.remove('keepmewell');
+  
+  // Trigger reflow by reading offsetWidth (to restart animation)
+  void element.offsetWidth;
+  
+  // Re-add the class to trigger the bounce animation again
+  element.classList.add('keepmewell');
+}, 10000);  // Trigger every 10 seconds
