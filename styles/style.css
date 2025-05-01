@@ -25,6 +25,22 @@ body {
 }
 
 
+
+/* Keep Me Well */
+.keepmewell {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  animation: bounce 1s ease forwards;
+  animation-delay: 5s;
+}
+
+.wellbeingbadge {
+  width: 12vh;
+  margin: 30px;
+}
+
+
 /* Scrollable text content inside info-panel */
 .scrollable-text {
   overflow-y: auto;
