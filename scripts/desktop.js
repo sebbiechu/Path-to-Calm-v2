@@ -37,7 +37,7 @@ if (window.innerWidth > 600) {
     let currentPhaseIndex = 0;
     let isRunning = false;
     let cycleCount = 0;
-    const totalCycles = 3;
+    const totalCycles = 2;
 
     function setPhases(technique) {
       if (technique.name === "Classic") {
@@ -135,7 +135,7 @@ if (window.innerWidth > 600) {
       if (isRunning) return;
       isRunning = true;
       cycleCount = 0;
-      progressEl.textContent = "0 / 3";
+      progressEl.textContent = "0 / 2";
       setPhases(currentTechnique);
       currentPhaseIndex = 0;
       fadeText(phases[0].label);
@@ -169,19 +169,22 @@ if (window.innerWidth > 600) {
       }
 
       // Show the correct achievement
-      if (currentXP >= 150) {
-        achievementTitle.textContent = "Petalmind";
-        achievementDescription.innerHTML = "Your awareness has softened, unfolding like a lotus.";
-        achievementImage.src = "images/petalmind.png";
-      } else if (currentXP >= 100) {
-        achievementTitle.textContent = "Lunaguide";
-        achievementDescription.innerHTML = "With steady breath and mindful flow, you have synced with nature.";
-        achievementImage.src = "images/lunaguide.png";
-      } else if (currentXP >= 50) {
-        achievementTitle.textContent = "Cloudwalker";
-        achievementDescription.innerHTML = "You have completed your first mindful journey. Well done!";
-        achievementImage.src = "images/cloudwalker.png";
-      }
+      let achievement = null;
+
+if (currentXP >= 150) {
+  achievement = achievements.find(a => a.id === "petalmind");
+} else if (currentXP >= 100) {
+  achievement = achievements.find(a => a.id === "lunaguide");
+} else if (currentXP >= 50) {
+  achievement = achievements.find(a => a.id === "cloudwalker");
+}
+
+if (achievement) {
+  achievementTitle.textContent = achievement.title;
+  achievementDescription.innerHTML = achievement.description;
+  achievementImage.src = achievement.image;
+}
+
     }
 
     function restart() {

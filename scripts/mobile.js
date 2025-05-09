@@ -289,56 +289,41 @@ progressEl.textContent = `0 / ${totalMobileCycles}`;
     });
 
     function finishMobileSession() {
-      mobileRunning = false;
-    
-      mobileCircle.style.transform = "scale(1)";
-      mobileCircle.style.background = "linear-gradient(135deg, #f7b2d9, #b2d9f7)";
-      mobilePhaseLabel.textContent = "";
-    
-      let achievementData = {};
-    
-      if (badgeProgress === 0) {
-        achievementData = {
-          title: "Cloudwalker",
-          desc: "You’ve just completed your very first breathing session...",
-          image: "images/cloudwalker.png"
-        };
-      } else if (badgeProgress === 1) {
-        achievementData = {
-          title: "Lunaguide",
-          desc: "With steady breath and mindful flow...",
-          image: "images/lunaguide.png"
-        };
-      } else if (badgeProgress === 2) {
-        achievementData = {
-          title: "Petalmind",
-          desc: "Your awareness has softened, unfolding like a lotus...",
-          image: "images/petalmind.png"
-        };
-      }
-    
-      achievementImage.src = achievementData.image;
-      achievementTitle.textContent = achievementData.title;
-      achievementDescription.innerHTML = achievementData.desc;
-    
-      let currentXP = parseInt(localStorage.getItem("xp")) || 0;
-      currentXP += 50;
-      localStorage.setItem("xp", currentXP);
-    
-      if (badgeProgress === 0) {
-        unlockBadge("badgeCloudwalkerMobile");
-      } else if (badgeProgress === 1) {
-        unlockBadge("badgeLunaguideMobile");
-      } else if (badgeProgress === 2) {
-        unlockBadge("badgePetalmindMobile");
-      }
-    
-      if (typeof updateBadgeTrack === "function") {
-        updateBadgeTrack();
-      }
-    
-      overlay.style.display = "flex";
-    }
+  mobileRunning = false;
+
+  mobileCircle.style.transform = "scale(1)";
+  mobileCircle.style.background = "linear-gradient(135deg, #f7b2d9, #b2d9f7)";
+  mobilePhaseLabel.textContent = "";
+
+  const idMap = ["cloudwalker", "lunaguide", "petalmind"];
+  const badgeIdMap = [
+    "badgeCloudwalkerMobile",
+    "badgeLunaguideMobile",
+    "badgePetalmindMobile"
+  ];
+
+  const achievementId = idMap[badgeProgress];
+  const badgeId = badgeIdMap[badgeProgress];
+
+  const achievementData = achievements.find(a => a.id === achievementId);
+  if (achievementData) {
+    achievementTitle.textContent = achievementData.title;
+    achievementDescription.innerHTML = achievementData.description;
+    achievementImage.src = achievementData.image;
+    unlockBadge(badgeId);
+  }
+
+  let currentXP = parseInt(localStorage.getItem("xp")) || 0;
+  currentXP += 50;
+  localStorage.setItem("xp", currentXP);
+
+  if (typeof updateBadgeTrack === "function") {
+    updateBadgeTrack();
+  }
+
+  overlay.style.display = "flex";
+}
+
          
 
     restartBtn.addEventListener("click", () => {
