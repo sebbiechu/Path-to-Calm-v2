@@ -39,6 +39,47 @@ function initMobileApp() {
     const mobileCircle = document.querySelector(".breathing-circle");
     const mobilePhaseLabel = document.getElementById("mobilePhaseLabel");
 
+    // Onboarding Modal Logic (Mobile)
+const onboardingModal = document.getElementById("onboardingModal");
+const onboardingSlides = document.querySelectorAll(".onboarding-slide");
+const onboardingDots = document.querySelectorAll(".dot");
+const nextSlideBtn = document.getElementById("nextSlideBtn");
+const skipIntroBtn = document.getElementById("skipIntroBtn");
+
+let currentSlide = 0;
+
+function showMobileSlide(index) {
+  onboardingSlides.forEach((slide, i) => {
+    slide.classList.toggle("active", i === index);
+    onboardingDots[i].classList.toggle("active", i === index);
+  });
+
+  nextSlideBtn.textContent = (index === onboardingSlides.length - 1) ? "Let's Begin" : "Next";
+}
+
+nextSlideBtn?.addEventListener("click", () => {
+  if (currentSlide < onboardingSlides.length - 1) {
+    currentSlide++;
+    showMobileSlide(currentSlide);
+  } else {
+    onboardingModal.style.display = "none";
+    localStorage.setItem("hasSeenIntro", "true");
+  }
+});
+
+skipIntroBtn?.addEventListener("click", () => {
+  onboardingModal.style.display = "none";
+  localStorage.setItem("hasSeenIntro", "true");
+});
+
+if (!localStorage.getItem("hasSeenIntro")) {
+  onboardingModal.style.display = "flex";
+  showMobileSlide(currentSlide);
+} else {
+  onboardingModal.style.display = "none";
+}
+
+
     const overlay = document.getElementById("overlay");
     const achievementImage = document.getElementById("achievementImage");
     const achievementTitle = document.getElementById("achievementTitle");
