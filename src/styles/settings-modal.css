@@ -1,0 +1,188 @@
+:root{
+  --primary: #ec008c;
+  --accent: #ec008c;
+  --bg-soft: #f6f7fb;
+  --ink-900:#0f172a;
+  --ink-700:#334155;
+  --ink-500:#64748b;
+  --ring: 0 0 0 3px rgba(85,99,255,0.25);
+}
+
+/* Scoping width just for this modal */
+.settings-modal { width: min(680px, 92%); padding: 0;}
+
+/* Optional gradient header only for Settings */
+.settings-modal .modal-header--gradient {
+  width: 100%;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid #eef1f6;
+  background: radial-gradient(120% 120% at -10% -20%, #c7cfff 0%, #ffffff 52%);
+}
+.settings-modal .modal-title h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--ink-900);
+  margin: 2px 0 0;
+}
+.settings-modal .modal-kicker {
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+.settings-modal .icon-btn {
+  background: #ffffff;
+  border: 1px solid #e6e9f3;
+  width: 36px; height: 36px;
+  display:grid; place-items:center;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: transform .06s ease, box-shadow .2s ease, background .2s;
+}
+.settings-modal .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.06); }
+
+/* Summary */
+.settings-modal .summary { padding: 14px 20px 6px; }
+.settings-modal .summary-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.9rem;
+  background: var(--bg-soft);
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--ink-700);
+  border: 1px solid #e9ecf4;
+}
+
+/* Timeline preview */
+.settings-modal .timeline { margin-top: 12px; }
+.settings-modal .timeline-bar {
+  height: 10px;
+  background: #eef1f6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.settings-modal .timeline-bar .seg { display:block; height:100%; float:left; }
+.settings-modal .seg-inhale { background: linear-gradient(90deg, #7ea8ff, #5563ff); }
+.settings-modal .seg-hold   { background: linear-gradient(90deg, #c6b5ff, #8a5cff); }
+.settings-modal .seg-exhale { background: linear-gradient(90deg, #86e3d0, #48c4a8); }
+.settings-modal .timeline-legend {
+  display:flex; flex-wrap:wrap; gap:10px;
+  font-size: 12px; color: var(--ink-500);
+  margin-top: 6px;
+}
+.settings-modal .timeline-legend .total { margin-left:auto; font-weight:600; color: var(--ink-700); }
+
+/* Form grid + cards */
+.settings-modal .form-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px 20px 8px;
+}
+@media (max-width: 720px) { .settings-modal .form-grid { grid-template-columns: 1fr; } }
+
+.settings-modal .card-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid #eef1f6;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+.settings-modal .card-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom: 10px; }
+.settings-modal .card-section h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.settings-modal .sub { font-size: 12px; color: var(--ink-500); }
+
+/* Fields */
+.settings-modal .field { display:flex; flex-direction:column; gap:8px; margin-bottom: 12px; }
+.settings-modal .field.two { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Slider + value bubble */
+.settings-modal .range-wrap { position: relative; display:flex; align-items:center; gap: 10px; }
+.settings-modal .range {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 10px; border-radius: 999px;
+  background: linear-gradient(90deg, #e9ecf4, #e9ecf4);
+  outline: none;
+}
+.settings-modal .range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--primary);
+  box-shadow: 0 2px 10px rgba(85,99,255,0.25);
+  cursor: pointer; transition: transform .06s ease;
+}
+.settings-modal .range::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; border: 2px solid var(--primary);
+  box-shadow: 0 2px 10px rgba(85,99,255,0.25);
+  cursor: pointer;
+}
+.settings-modal .range:active::-webkit-slider-thumb { transform: scale(0.98); }
+.settings-modal .bubble {
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px; padding: 4px 8px;
+  border-radius: 999px;
+  user-select: none;
+}
+
+/* Stepper (number input replacement) */
+.settings-modal .stepper {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  background: #f8f9fe;
+  border: 1px solid #e6e9f3;
+  border-radius: 999px;
+  padding: 4px;
+}
+.settings-modal .stepper-btn {
+  height: 36px; width: 36px;
+  border: 0; border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-size: 18px; line-height: 1;
+}
+.settings-modal .stepper-btn:focus { outline: none; box-shadow: var(--ring); }
+.settings-modal .stepper-input {
+  width: 100%;
+  height: 36px;
+  border: 0; background: transparent; text-align: center;
+  font-size: 0.95rem; color: var(--ink-900);
+}
+.settings-modal .stepper-input:focus { outline: none; }
+
+/* Footer buttons (scoped to avoid global btn conflicts) */
+.settings-modal .btn {
+  height: 40px; padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #e6e9f3;
+  background: #fff;
+  color: var(--ink-900);
+  font-weight: 600; cursor: pointer;
+  transition: transform .06s ease, box-shadow .2s ease, background .2s;
+}
+.settings-modal .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 20px rgba(0,0,0,.06); }
+.settings-modal .btn.primary {
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  color: #fff; border: none;
+}
+
+/* Remove default number input spinners (Chrome, Safari, Edge) */
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove default number input spinners (Firefox) */
+.stepper-input[type=number] {
+  -moz-appearance: textfield;
+}

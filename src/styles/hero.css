@@ -1,4 +1,4 @@
-.hero { text-align: center; padding-block: clamp(8px, 3vh, 90px); }
+.hero { text-align: center; padding-block: clamp(10px, 0vh, 90px); }
 .hero-minimal .brand { margin: 0 0 6px; font-size: clamp(28px,5vw,40px); letter-spacing:-.02em; font-weight:700; }
 .hero-minimal .tagline { margin: 0; color:#6b7280; font-size: clamp(14px,1.8vw,16px); }
-.subtag { margin: 6px 0 0; color:#8b92a1; font-size: 14px; }
+.subtag { margin: 20px 0 0; color:#8b92a1; font-size: 14px; }

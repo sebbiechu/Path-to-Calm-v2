@@ -1,0 +1,102 @@
+/* ===== Grid ===== */
+.picker-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+  list-style:none;
+  padding:0;margin:0;
+}
+.picker-cell{ display:contents; }
+
+/* ===== Card ===== */
+.picker-item {
+  position: relative;
+  overflow: hidden;         /* clips the accent to the rounded corners */
+  border-radius: 16px;      /* keep in sync with your card radius */
+}
+
+/* hover/focus: subtle lift + hairline accent */
+.picker-item:hover,
+.picker-item:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--accent, #ec008c) 70%, transparent);
+  outline-offset: 2px;
+}
+
+/* active: crisp ring + left accent bar; no heavy fills */
+.picker-item.active {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.picker-item.active {
+  border-color: var(--accent, #ec008c);
+  /* draw a 4px accent strip inside the card without changing layout */
+  background:
+    linear-gradient(90deg, var(--accent, #ec008c), var(--accent, #ec008c)) left / 4px 100% no-repeat,
+    linear-gradient(#fff, #fff);
+}
+
+.picker-item.active::before { content: none !important; }
+
+
+/* ===== Content ===== */
+.picker-head{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  margin-bottom:8px;
+}
+.picker-title{
+  font-weight:700;letter-spacing:.2px;
+}
+.picker-caret{ opacity:.35; transition:opacity .15s ease, transform .15s ease; }
+.picker-item:hover .picker-caret{ opacity:.7; transform:translateX(2px); }
+
+.picker-chips{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-bottom:8px;
+}
+.chip{
+  font-size:.82rem;line-height:1;
+  padding:6px 8px;border-radius:999px;
+  border:1px solid var(--stroke);
+  background:#f8fafc;
+  color:#0f172a;
+}
+.picker-item.active .chip{
+  border-color:color-mix(in oklab, var(--accent) 40%, var(--stroke));
+  background:color-mix(in oklab, var(--accent) 12%, #f8fafc);
+}
+
+.picker-desc{
+  font-size:.92rem;line-height:1.35;color:var(--muted);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+  /* graceful fallback: clamp long text to keep rows even */
+}
+
+/* ===== Density variants (optional) ===== */
+/* use on the modal card: .picker.compact .picker-item { ... } if you want tighter rows */
+.picker.compact .picker-item{ min-height:120px; padding:12px 14px; }
+.picker.compact .picker-desc{ -webkit-line-clamp:3; }
+
+/* ===== Small screens ===== */
+@media (max-width:420px){
+  .picker-list{ grid-template-columns:1fr 1fr; }
+  .picker-item{ min-height:128px; }
+}
+
+/* ===== Dark mode (if you toggle body.dark) ===== */
+body.dark .picker-item{
+  --stroke:#243040;
+  --text:#e6e8ee;
+  --muted:#b3bdc9;
+  background:#0f1420;border-color:var(--stroke);
+  box-shadow:0 1px 0 rgba(0,0,0,.4);
+}
+body.dark .chip{ background:#0b1020;color:#dbe1ea;border-color:#202a38; }
+body.dark .picker-item:hover,
+body.dark .picker-item:focus-visible{
+  box-shadow:0 10px 26px rgba(0,0,0,.45);
+  border-color:color-mix(in oklab, var(--accent) 40%, var(--stroke));
+}
+body.dark .picker-item.active{
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--accent) 38%, transparent);
+}

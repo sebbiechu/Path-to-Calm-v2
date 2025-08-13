@@ -183,7 +183,7 @@
   font-weight: 600;
 }
 
-.btn.primary { background: #6366f1; color: #fff; }
+.btn.primary { background: #ec008c; color: #fff; }
 .btn.secondary { background: #374151; color: #fff; }
 .btn.ghost { background: transparent; border: 1px solid rgba(0,0,0,0.22); }
 .btn.danger { background: #ef4444; color: #fff; }
@@ -293,7 +293,7 @@
 
 .panel-actions { margin-top: auto; display: grid; gap: .75rem; }
 .btn { padding: .65rem 1rem; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
-.btn.primary { background: #6366f1; color: #fff; }
+.btn.primary { background: #ec008c; color: #fff; }
 .btn.secondary { background: #374151; color: #fff; }
 .btn.ghost { background: transparent; border: 1px solid rgba(0,0,0,.22); }
 .btn.danger { background: #ef4444; color: #fff; }
