@@ -1,0 +1,102 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  background: var(--tile);
+  border: 1px solid #eef1ff;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.stat-label {
+  color: var(--ink-300);
+}
+
+.stat.note {
+  grid-column: span 1;
+  display: grid;
+  place-items: center;
+  color: var(--ink-300);
+}
+
+@media (min-width: 641px) {
+  .stat.note {
+    grid-column: span 1;
+  }
+}
+
+/* ----- Sidebar compact tweaks ----- */
+.side-rail .stats {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 1100px) {
+  .side-rail .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.side-rail .stat {
+  padding: 12px;
+}
+
+.side-rail .stat-value {
+  font-size: 22px;
+}
+
+.side-rail .stat-label {
+  font-size: 12px;
+}
+
+.side-rail .stat.note {
+  display: none; /* hide helper text in sidebar */
+}
+
+/* Sidebar progress cards wrapper */
+.progress-grid {
+  display: grid;
+  gap: 40px;
+  padding-block: clamp(8px, 3vh, 90px);
+}
+
+.progress-col {
+  background: var(--tile);
+  border: 1px solid #eef1ff;
+  border-radius: 12px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.progress-col h2 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+/* When sidebar stacks under main, let stats run 2-up then 1-up */
+@media (max-width: 980px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .stats { grid-template-columns: 1fr; }
+}
+
+/* Sidebar variant already compact; ensure full width on mobile */
+@media (max-width: 980px) {
+  .progress-grid { gap: 12px; }
+  .progress-col { border-radius: 12px; padding: 12px; }
+}

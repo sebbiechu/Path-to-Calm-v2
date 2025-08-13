@@ -1,0 +1,36 @@
+/* Breaths Control Box */
+.breaths-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #eef1ff;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.8);
+}
+
+.breaths-input {
+  width: 72px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+}
+
+.breaths-hint {
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+/* Mobile adjustments for controls */
+@media (max-width: 520px) {
+  .breaths-input {
+    width: 64px;
+    padding: 10px;
+    font-weight: 700;
+  }
+  .breaths-hint {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,72 @@
+/* Backdrop */
+.disclaimer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: grid;
+  place-items: end center; /* anchor content to bottom */
+  z-index: 1000;
+}
+
+/* Bottom sheet container */
+.bottom-sheet {
+  width: 100%;
+  max-width: 680px;
+  background: #fff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -10px 30px rgba(0,0,0,.2);
+  transform: translateY(100%);
+}
+
+/* Slide up on open */
+.bottom-sheet.open {
+  animation: sheet-in 260ms ease-out forwards;
+}
+
+/* Slide down on close */
+.bottom-sheet.closing {
+  animation: sheet-out 260ms ease-in forwards;
+}
+
+/* Animations */
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0%); }
+}
+
+@keyframes sheet-out {
+  from { transform: translateY(0%); }
+  to   { transform: translateY(100%); }
+}
+
+/* Grabber */
+.sheet-grabber {
+  width: 44px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  margin: 10px auto 6px;
+}
+
+/* Layout */
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px 0 16px;
+}
+
+.sheet-body {
+  padding: 8px 16px 16px 16px;
+}
+
+.sheet-footer {
+  padding: 12px 16px 20px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.icon-info { margin-right: .4rem; vertical-align: text-bottom; }

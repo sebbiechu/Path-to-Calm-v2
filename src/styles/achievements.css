@@ -1,0 +1,83 @@
+/* --- Achievements box header --- */
+.ach-box .ach-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 4px 12px;
+}
+.ach-box .ach-label { font-weight: 600; color: #0f172a; }
+.ach-box .ach-xp    { font-weight: 700; color: #0f172a; }
+
+/* --- Grid: 3 slots, pills centered so width stays consistent --- */
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 130px); /* match your pill width */
+  gap: 16px;
+  justify-content: space-between;          /* spreads them evenly */
+}
+
+/* --- Pill card --- */
+.ach-badge {
+  /* keep size consistent (prevents stretch) */
+  width: 130px;              /* tweak to 160–172 if you need */
+  margin: 0 auto;            /* center inside each grid column */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: none;          /* remove the heavy shadow */
+  padding: 14px 12px;
+  min-height: 178px;
+
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.ach-box, .progress-col { overflow: visible; }
+
+.ach-badge.unlocked:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.08); /* subtle, not muddy */
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.ach-badge:disabled { cursor: default; }
+
+/* --- Image & text --- */
+.ach-img {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.ach-title {
+  font-weight: 600;
+  font-size: 15px;           /* smaller so Cloudwalker fits */
+  line-height: 1.2;
+  margin: 4px 0 2px;
+  max-width: 100%;
+  /* allow 2-line wrap, keep heights aligned */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 36px;          /* space for up to 2 lines */
+}
+
+.ach-sub {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* --- Locked visuals --- */
+.ach-badge.locked .ach-img { filter: grayscale(1); opacity: .55; }
+.ach-badge.locked .ach-title,
+.ach-badge.locked .ach-sub { color: #c7cdd7; }
+
+/* If any global .badge-* rules bleed through, neutralize them here */
+.badge-grid, .badge-item, .badge-title, .badge-sub { all: unset; }
