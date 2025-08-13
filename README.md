@@ -1,12 +1,24 @@
-# React + Vite
+# 🌿 Path to Calm
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Path to Calm** is a simple, calming breathing app designed to help you pause, breathe, and feel better — anytime, anywhere.
 
-Currently, two official plugins are available:
+## ✨ What It Does
+- 🫁 **Guided breathing** to help reduce stress and improve focus  
+- 🎯 **Customisable sessions** so you can breathe at your own pace  
+- 🏆 **Achievements & XP** to keep you motivated  
+- 🔊 **Soothing audio cues** to guide each breath  
+- 📈 **Progress tracking** to see how far you’ve come  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🪷 How to Use
+1. Choose a breathing style (or make your own)  
+2. Follow the on-screen guide — inhale, hold, exhale  
+3. Earn points, unlock badges, and build a calm habit  
 
-## Expanding the ESLint configuration
+## 💻 Works Anywhere
+Use Path to Calm on your desktop, tablet, or phone — no downloads needed.  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+Breathe in.  
+Breathe out.  
+Find your path to calm.
