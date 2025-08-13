@@ -81,3 +81,7 @@
   width: 14px;
   height: 14px;
 }
+
+.highlight {
+    color: var(--accent, #6366f1); /* or any hex/rgb/hsl */
+}

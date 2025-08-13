@@ -1,12 +1,12 @@
 export default function WelcomeHero() {
   return (
     <section className="hero hero-minimal">
-      <h1 className="brand">Breathe better in minutes</h1>
+      <h1 className="brand">Your <span className="highlight">breath,</span> your power</h1>
       <p className="tagline">
-        Pick a guided rhythm, fine‑tune the pace, and let the animation lead your breath.
+        Custom breathing for focus and calm
       </p>
       <p className="subtag">
-        Calm your body, clear your mind, and feel more present.
+        Adjust the tempo, follow the guide, and unlock the science of better breathing below.
       </p>
     </section>
   );

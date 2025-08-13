@@ -6,7 +6,7 @@ body {
   margin: 0;
   font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   color: #0e1222;
-  background: radial-gradient(1200px 800px at 20% -10%, #c7e7ff 0%, transparent 60%),
+  background: radial-gradient(1200px 800px at 20% -10%, #ec008c75 0%, transparent 60%),
               radial-gradient(1000px 700px at 110% 10%, #ffe3ec 0%, transparent 55%),
               linear-gradient(180deg, #f6fbff 0%, #ffffff 70%);
 }
