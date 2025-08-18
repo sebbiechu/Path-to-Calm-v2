@@ -1,6 +1,7 @@
+// /src/components/BreathSession.jsx
 import { useEffect, useRef, useState } from 'react';
 import useBreathEngine from '../hooks/useBreathEngine.js';
-import { playPhaseSound, stopAllSounds } from '../utils/audio.js';
+import { playPhaseSound, stopAllSounds, pauseAllSounds, resumeCurrentSound } from '../utils/audio.js';
 import { supabase } from '../utils/supabaseClient.js';
 
 function formatMMSS(totalSeconds) {
@@ -13,7 +14,7 @@ function getBrowserKey() {
   const KEY = 'ptc_user_key';
   let k = localStorage.getItem(KEY);
   if (!k) {
-    k = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`); // fallback
+    k = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`);
     localStorage.setItem(KEY, k);
   }
   return k;
@@ -24,36 +25,56 @@ export default function BreathSession({ preset, onClose }) {
   const [remaining, setRemaining] = useState(preset.breaths);
   const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [restartCooling, setRestartCooling] = useState(false);
+
   const circleRef = useRef(null);
   const heartbeatRef = useRef(null);
   const userKeyRef = useRef(null);
 
-  const { start, stop } = useBreathEngine({
-    inhaleMs: preset.inMs,
-    holdMs: preset.holdMs ?? 0,
-    exhaleMs: preset.exMs,
-    breaths: preset.breaths,
-    onPhase: (nextPhase, breathsLeft) => {
-      setPhase(nextPhase);
-      setRemaining(breathsLeft);
-      playPhaseSound(nextPhase);
-      if (!circleRef.current) return;
-      const el = circleRef.current;
-      el.classList.remove('inhale','exhale','hold');
-      el.classList.add(nextPhase);
-      Array.from(el.classList).forEach(c => c.startsWith('dur-') && el.classList.remove(c));
-      const dur = nextPhase === 'inhale' ? preset.inMs : nextPhase === 'exhale' ? preset.exMs : (preset.holdMs ?? 0);
-      el.classList.add(`dur-${Math.max(dur,1)}`);
-    },
-    onDone: () => setPhase('done')
-  });
+  // --- Engine ---------------------------------------------------------------
+  const engineRef = useRef(null);
+  if (!engineRef.current) {
+    engineRef.current = useBreathEngine({
+      inhaleMs: preset.inMs,
+      holdMs: preset.holdMs ?? 0,
+      exhaleMs: preset.exMs,
+      breaths: preset.breaths,
+      onPhase: (nextPhase, breathsLeft) => {
+        // UI state
+        setPhase(nextPhase);
+        setRemaining(breathsLeft);
 
-  // Join presence & start engine
+        // Play sound only if not paused (guards race conditions)
+        if (!paused) playPhaseSound(nextPhase);
+
+        // Circle classes (phase → CSS), plus a duration marker class
+        const el = circleRef.current;
+        if (!el) return;
+        el.classList.remove('inhale','exhale','hold');
+        el.classList.add(nextPhase);
+        // remove old dur-*
+        Array.from(el.classList).forEach(c => c.startsWith('dur-') && el.classList.remove(c));
+        const dur = nextPhase === 'inhale'
+          ? preset.inMs
+          : nextPhase === 'exhale'
+            ? preset.exMs
+            : (preset.holdMs ?? 0);
+        el.classList.add(`dur-${Math.max(dur || 0, 1)}`);
+      },
+      onDone: () => {
+        setPhase('done');
+        stopAllSounds();
+        setPaused(true);
+      }
+    });
+  }
+  const engine = engineRef.current;
+
+  // --- Presence + session lifecycle ----------------------------------------
   useEffect(() => {
     let mounted = true;
 
     async function resolveUserKey() {
-      // try auth user id, else browser key
       try {
         const { data: { user } } = await supabase.auth.getUser();
         return user?.id || getBrowserKey();
@@ -63,12 +84,15 @@ export default function BreathSession({ preset, onClose }) {
     }
 
     async function joinPresence(key) {
-      const now = new Date().toISOString();
-      await supabase.from('presence').upsert({ user_key: key, last_seen: now }, { onConflict: 'user_key' });
+      const nowISO = new Date().toISOString();
+      await supabase.from('presence')
+        .upsert({ user_key: key, last_seen: nowISO }, { onConflict: 'user_key' });
     }
 
     async function beat(key) {
-      await supabase.from('presence').update({ last_seen: new Date().toISOString() }).eq('user_key', key);
+      await supabase.from('presence')
+        .update({ last_seen: new Date().toISOString() })
+        .eq('user_key', key);
     }
 
     async function leave(key) {
@@ -81,61 +105,72 @@ export default function BreathSession({ preset, onClose }) {
       userKeyRef.current = key;
 
       await joinPresence(key);
-      start();
+      engine.start();                 // clean start
+      setPaused(false);
+      setPhase('inhale');
+      setRemaining(preset.breaths);
 
       heartbeatRef.current = setInterval(() => beat(key), 15000);
-      // one immediate beat so UI feels snappy
-      beat(key);
+      beat(key); // immediate beat
     })();
 
     return () => {
       mounted = false;
-      stop();
+      engine.stop();
       stopAllSounds();
       clearInterval(heartbeatRef.current);
       if (userKeyRef.current) leave(userKeyRef.current);
     };
-  }, [preset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset.inMs, preset.holdMs, preset.exMs, preset.breaths]);
 
-  // Elapsed timer
+  // --- Elapsed timer (pauses when paused or done) --------------------------
   useEffect(() => {
     if (paused || phase === 'done') return;
     const id = setInterval(() => setElapsed(e => e + 1), 1000);
     return () => clearInterval(id);
   }, [paused, phase]);
 
-  const handleRestart = () => {
-    stop();
-    stopAllSounds();
-    setPhase('inhale');
-    setRemaining(preset.breaths);
-    setElapsed(0);
-    setPaused(false);
-    start();
-    if (userKeyRef.current) {
-      // refresh heartbeat timestamp on restart
-      supabase.from('presence').update({ last_seen: new Date().toISOString() }).eq('user_key', userKeyRef.current);
-    }
-  };
-
+  // --- Pause / Resume -------------------------------------------------------
   const handlePauseToggle = () => {
     if (!paused) {
-      stop();
-      stopAllSounds();
+      engine.pause();
       setPaused(true);
+      // freeze audio
+      pauseAllSounds();
     } else {
-      setPhase('inhale');
-      setRemaining(preset.breaths);
       setPaused(false);
-      start();
-      if (userKeyRef.current) {
-        supabase.from('presence').update({ last_seen: new Date().toISOString() }).eq('user_key', userKeyRef.current);
-      }
+      // resume engine at current phase/timeLeft
+      engine.resume();
+      // resume current phase audio
+      resumeCurrentSound();
     }
   };
 
+  // --- Restart (debounced & safe) ------------------------------------------
+  const handleRestart = () => {
+    if (restartCooling) return;
+    setRestartCooling(true);
+    setTimeout(() => setRestartCooling(false), 600); // simple debounce
+
+    engine.stop();     // cancel any pending timeout
+    stopAllSounds();   // silence
+    setElapsed(0);
+    setPaused(false);
+    setPhase('inhale');
+    setRemaining(preset.breaths);
+    engine.start();
+
+    if (userKeyRef.current) {
+      supabase.from('presence')
+        .update({ last_seen: new Date().toISOString() })
+        .eq('user_key', userKeyRef.current);
+    }
+  };
+
+  // --- End session ----------------------------------------------------------
   const handleEnd = async () => {
-    stop();
+    engine.stop();
     stopAllSounds();
     clearInterval(heartbeatRef.current);
     if (userKeyRef.current) {
@@ -160,6 +195,7 @@ export default function BreathSession({ preset, onClose }) {
               : <button className="btn primary" onClick={handleEnd}>Finish</button>}
           </div>
         </div>
+
         {paused && (
           <div className="paused-overlay" aria-live="polite">
             <div className="paused-card">
@@ -184,7 +220,7 @@ export default function BreathSession({ preset, onClose }) {
         {preset.description && <p className="panel-desc">{preset.description}</p>}
         <div className="panel-actions">
           <button className="btn ghost" onClick={handlePauseToggle}>{paused ? 'Resume' : 'Pause'}</button>
-          <button className="btn secondary" onClick={handleRestart}>Restart</button>
+          <button className="btn secondary" onClick={handleRestart} disabled={restartCooling}>Restart</button>
           <button className="btn danger" onClick={handleEnd}>End Session</button>
         </div>
       </aside>
