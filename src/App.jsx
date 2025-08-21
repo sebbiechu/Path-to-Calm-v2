@@ -171,10 +171,6 @@ export default function App() {
               />
 
               <div className="primary-cta">
-                {/* People are breathing */}
-                <div className="community-center">
-                  <CommunityPulse />
-                </div>
 
                 {/* Start & Settings buttons */}
                 <div className="cta-row">
