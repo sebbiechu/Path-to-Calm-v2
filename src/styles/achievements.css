@@ -81,3 +81,14 @@
 
 /* If any global .badge-* rules bleed through, neutralize them here */
 .badge-grid, .badge-item, .badge-title, .badge-sub { all: unset; }
+
+
+/* Wrap badges fluidly on small screens */
+@media (max-width: 700px) {
+  .ach-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    justify-content: center;
+  }
+  .ach-badge { width: 100%; } /* use the full column width */
+}

@@ -17,6 +17,7 @@ import './styles/disclaimer.css';
 import './styles/achievements.css';
 import './styles/settings-modal.css';
 import './styles/preset-picker.css';
+import './styles/responsive.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

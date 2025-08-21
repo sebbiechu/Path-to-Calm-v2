@@ -154,7 +154,7 @@ export default function App() {
           {/* LEFT: centered main column */}
           <main className="main-rail">
             <div className="logo-fixed">
-              <img src="/images/people.svg" alt="People Development" />
+              <img src="/images/people_logo.svg" alt="People Development" />
             </div>
 
             <WelcomeHero />

@@ -45,3 +45,14 @@ button { font: inherit; cursor: pointer; }
 }
 
 
+@media (max-width: 767.98px) {
+  .logo-fixed {
+    position: static;           /* stop overlapping content on phones */
+    display: flex;
+    justify-content: center;
+    margin: 12px auto 0;
+  }
+  .logo-fixed img {
+    height: 72px;               /* smaller on phones */
+  }
+}

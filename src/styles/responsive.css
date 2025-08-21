@@ -1,0 +1,113 @@
+/* ---------- SAFETY NET (never break desktop) ---------- */
+.page img, .page svg, .page canvas, .page video {
+  max-width: 100%;
+  height: auto;
+}
+html, body { overflow-x: clip; }        /* stop horizontal scrollbars */
+
+/* ---------- MOBILE ONLY: stack & resize ---------- */
+@media (max-width: 767.98px) {
+
+  /* Scope everything to the app root to avoid global override */
+  .page .container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin-top: 10em;
+  }
+
+  .page .grid-main {
+    display: grid;
+    grid-template-areas:
+      "main"
+      "side";
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    max-width: 100%;
+  }
+
+  .page .main-rail { grid-area: main; min-width: 0; }
+  .page .side-rail { grid-area: side; min-width: 0; }
+
+  /* Hero heading: stop clipping/wrapping issues on phones only */
+  .page .welcome-hero h1,
+  .page .welcome-hero .title,
+  .page .welcome-hero .hero-title {
+    font-size: clamp(24px, 6vw, 36px);
+    line-height: 1.15;
+    margin: 0 0 10px;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .page .welcome-hero .subtitle,
+  .page .welcome-hero p.lead {
+    font-size: clamp(14px, 3.8vw, 18px);
+    line-height: 1.5;
+    margin: 6px 0 14px;
+  }
+
+  /* Keep chips & summary from overflowing */
+  .page .center-rail { display: grid; gap: 16px; min-width: 0; }
+  .page .center-rail > * { min-width: 0; }
+  .page .center-rail .summary,
+  .page .center-rail .summary-chip {
+    display: flex; flex-wrap: initial; gap: 8px 12px; max-width: 100%;
+  }
+
+  /* Community line wraps nicely */
+  .page .community-center { width: 100%; overflow: hidden; }
+  .page .community-center .line { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Buttons: full-width on narrow, no overflow */
+  .page .cta-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .page .btn, .page button, .page [role="button"] {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+
+  /* Link size */
+  .page .cta-meta { display: flex; justify-content: center; margin-top: 8px; }
+  .page .text-link { font-size: 16px; }
+
+  /* Progress cards stack */
+  .page .side-rail { display: grid; gap: 16px; }
+  .page .progress .progress-grid {
+    display: grid; grid-template-columns: 1fr; gap: 12px;
+  }
+
+  /* Breathing visual hook (if you add this class around your circle) */
+  .page .breath-visual {
+    width: clamp(220px, 60vmin, 520px);
+    height: clamp(220px, 60vmin, 520px);
+    max-width: 92vw; max-height: 92vw; margin: 0 auto;
+    touch-action: manipulation;
+  }
+
+  .logo-fixed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    align-items: flex-start;
+    z-index: -999999;
+  }
+
+
+  .logo-fixed img {
+    max-width: 25%;
+    padding-top: 1.5em;
+  }
+}
+
+/* ---------- DESKTOP/TABLET KEEP YOUR CURRENT STYLES ---------- */
+/* If you earlier added unscoped rules like ".container { width:100% }" or
+   ".grid-main { display:grid }", remove them or wrap them in the same
+   @media (max-width: 767.98px) AND prefix with ".page" */

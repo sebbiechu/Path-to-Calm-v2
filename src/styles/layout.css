@@ -85,3 +85,9 @@
 .highlight {
     color: var(--accent, #6366f1); /* or any hex/rgb/hsl */
 }
+
+/* Keep grid children from forcing horizontal scroll */
+.main-rail, .side-rail { min-width: 0; }
+
+/* Safety: if any inner element tries to overflow, clip it at container edge */
+.grid-main { overflow: hidden; }

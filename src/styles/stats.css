@@ -72,6 +72,7 @@
   display: grid;
   gap: 10px;
   padding-block: clamp(8px, 3vh, 90px);
+  justify-content: end;
 }
 
 .progress-col {

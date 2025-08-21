@@ -2,3 +2,21 @@
 .hero-minimal .brand { margin: 0 0 6px; font-size: clamp(28px,5vw,40px); letter-spacing:-.02em; font-weight:700; }
 .hero-minimal .tagline { margin: 0; color:#6b7280; font-size: clamp(14px,1.8vw,16px); }
 .subtag { margin: 20px 0 0; color:#8b92a1; font-size: 14px; }
+
+/* Prevent hero heading clipping and balance line breaks */
+.welcome-hero h1,
+.hero-minimal .brand {
+  font-size: clamp(28px, 5.5vw, 44px);
+  line-height: 1.15;
+  margin: 0 0 10px;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* Slightly larger, readable subhead */
+.welcome-hero .subtitle,
+.hero-minimal .tagline {
+  font-size: clamp(14px, 2.2vw, 18px);
+  line-height: 1.5;
+  opacity: 0.9;
+}
