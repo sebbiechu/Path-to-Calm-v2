@@ -33,6 +33,7 @@ button { font: inherit; cursor: pointer; }
 
 
 .logo-fixed {
+  bottom: 0;
   position: fixed;
   bottom: 2rem;
   right: 3rem;
