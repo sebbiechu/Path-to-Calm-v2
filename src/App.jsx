@@ -188,36 +188,64 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Medical Disclaimer */}
-                <div className="cta-meta">
-                  <button
-                    className="text-link"
-                    onClick={() => {
-                      setDisclaimerMode('view'); // view-only mode
-                      setShowDisclaimer(true);
-                    }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="icon-info"
-                      aria-hidden="true"
-                      focusable="false"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="12" y1="8" x2="12" y2="12" />
-                      <line x1="12" y1="16" x2="12" y2="16" />
-                    </svg>
-                    Medical Disclaimer
-                  </button>
-                </div>
+                {/* Medical Disclaimer + Feedback */}
+<div className="cta-meta flex flex-col items-center space-y-2">
+  <button
+    className="text-link flex items-center gap-2"
+    onClick={() => {
+      setDisclaimerMode('view'); // view-only mode
+      setShowDisclaimer(true);
+    }}
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="icon-info"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12" y2="16" />
+    </svg>
+    Medical Disclaimer
+  </button>
+
+  <a
+  href="https://forms.office.com/Pages/ResponsePage.aspx?id=-QiCXGC1CUmQO1pcxbHUWg5Hnc8ZyB9KhUUOyWLYxuBUMlFQQVVJNzM3RTFTRUI1SVE3RzQwMlIwNC4u"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="text-link flex items-center"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="icon-edit"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+  </svg>
+  <span className="ml-2">&nbsp;Share Your Feedback</span>
+</a>
+
+</div>
+
               </div>
             </section>
           </main>
