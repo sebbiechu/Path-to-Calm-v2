@@ -38,6 +38,9 @@ Share the app internally as `https://pathtocalm.vercel.app/?colleague`. Colleagu
 mood sharing switched on by default, with a notice banner and a one-tap "Turn off". The app remembers them, so later
 visits can use the plain link. Anyone arriving via the plain link (the public) keeps sharing off by default.
 
+Safety net: arriving by clicking a link on `aswatsoneurope.csod.com` (Cornerstone) also counts as a colleague, if
+the browser passes the referrer. Keep using the `?colleague` link in Cornerstone as the main route.
+
 ## Adding badge artwork
 Five badges use placeholder emblems. To add art, save a square image (about 480px, .webp) in `public/images/` and set `img: '/images/name.webp'` on that badge in `src/data/badges.js`.
 

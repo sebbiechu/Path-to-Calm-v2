@@ -23,9 +23,22 @@ import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/st
 const DISCLAIMER_VERSION = '1.0.0';
 const DISCLAIMER_KEY = 'disclaimer.v';
 
-// Colleagues open the app from an internal link ending in ?colleague. Remember it, then tidy the URL.
+// Colleagues are recognised by the internal link (?colleague), or as a safety net by arriving
+// from the AS Watson Europe Cornerstone site (also matches its staging/pilot variants).
+const CORNERSTONE = /^aswatsoneurope(-[a-z0-9]+)?\.csod\.com$/i;
+
+function cameFromCornerstone() {
+  try {
+    return Boolean(document.referrer) && CORNERSTONE.test(new URL(document.referrer).hostname);
+  } catch {
+    return false;
+  }
+}
+
+// Remember colleagues on this device, then tidy the URL
 function detectColleague() {
   try {
+    if (cameFromCornerstone()) write('ptc.colleague', '1');
     const params = new URLSearchParams(window.location.search);
     if (params.has('colleague')) {
       write('ptc.colleague', '1');
