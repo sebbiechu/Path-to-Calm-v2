@@ -97,6 +97,34 @@
 .share-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .share-actions .btn { min-height: 40px; padding: 0 14px; font-size: 0.875rem; }
 
+/* Colleague sharing notice: sits at the bottom, doesn't block the page */
+.share-notice {
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 24px));
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgb(10 12 24 / 0.2);
+  border: 1px solid var(--line);
+  animation: notice-in 0.3s ease both;
+}
+.share-notice-text { display: grid; gap: 4px; flex: 1; }
+.share-notice .muted { font-size: 0.875rem; }
+.share-notice .share-actions { flex: none; }
+@keyframes notice-in { from { opacity: 0; transform: translate(-50%, 12px); } }
+@media (max-width: 600px) {
+  .share-notice { flex-direction: column; align-items: stretch; gap: 14px; }
+  .share-notice .share-actions .btn { flex: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .share-notice { animation: none; } }
+
 /* Onboarding tour */
 .tour { position: fixed; inset: 0; z-index: 50; }
 .tour-shade {

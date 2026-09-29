@@ -15,6 +15,7 @@ import { applyCompletion } from './lib/stats.js';
 import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
 import Tour from './components/Tour.jsx';
+import ShareNotice from './components/ShareNotice.jsx';
 import * as audio from './lib/audio.js';
 import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/storage.js';
 
@@ -22,12 +23,32 @@ import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/st
 const DISCLAIMER_VERSION = '1.0.0';
 const DISCLAIMER_KEY = 'disclaimer.v';
 
+// Colleagues open the app from an internal link ending in ?colleague. Remember it, then tidy the URL.
+function detectColleague() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('colleague')) {
+      write('ptc.colleague', '1');
+      params.delete('colleague');
+      const query = params.toString();
+      window.history.replaceState(null, '', window.location.pathname + (query ? `?${query}` : '') + window.location.hash);
+    }
+  } catch {
+    // no URL access: treat as public
+  }
+  return read('ptc.colleague') === '1';
+}
+const IS_COLLEAGUE = typeof window !== 'undefined' && detectColleague();
+
 // Loads saved settings, falling back to the v1 "breaths" key
 function loadSettings() {
   const base = defaultSettings();
+  // Colleagues share by default, unless they've already said no
+  if (IS_COLLEAGUE && read('ptc.shareAsked') !== '1') base.shareMood = true;
   const saved = readJSON('ptc.settings', null);
   if (saved) {
     const settings = { ...base, ...saved };
+    if (IS_COLLEAGUE && read('ptc.shareAsked') !== '1' && read('ptc.shareNoticed') !== '1') settings.shareMood = true;
     // Anyone still on an old default breath count moves to the new shorter default
     if (!saved.defaultsV2 && settings.breaths === OLD_DEFAULT_BREATHS[settings.presetId]) {
       settings.breaths = findPreset(settings.presetId).breaths;
@@ -91,6 +112,7 @@ export default function App() {
   const [tourDone, setTourDone] = useState(() => read('ptc.tourDone') === '1');
   const [touring, setTouring] = useState(false);
   const [shareAsked, setShareAsked] = useState(() => read('ptc.shareAsked') === '1');
+  const [shareNoticed, setShareNoticed] = useState(() => read('ptc.shareNoticed') === '1');
   const [stage, setStage] = useState(null); // null | 'mood' | 'session'
   const [moodBefore, setMoodBefore] = useState(null);
   const [moods, setMoods] = useState(loadMoods);
@@ -147,6 +169,14 @@ export default function App() {
     setShareAsked(true);
     write('ptc.shareAsked', '1');
   };
+
+  // Colleague notice: OK keeps sharing on, Turn off opts out. Either way it counts as answered.
+  const answerNotice = (keepOn) => {
+    answerShare(keepOn);
+    setShareNoticed(true);
+    write('ptc.shareNoticed', '1');
+  };
+  const showNotice = IS_COLLEAGUE && !shareNoticed && !shareAsked && tourDone && !touring && modal === null && stage === null;
 
   // Theme: apply now, and follow the phone if set to system
   useEffect(() => {
@@ -296,6 +326,8 @@ export default function App() {
       )}
 
       {touring && <Tour onClose={endTour} />}
+
+      {showNotice && <ShareNotice onOk={() => answerNotice(true)} onTurnOff={() => answerNotice(false)} />}
 
       {(badgeQueue.length > 0 || openBadge) && (
         <BadgeModal

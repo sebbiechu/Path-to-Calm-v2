@@ -33,6 +33,11 @@ Set these in Vercel (Project > Settings > Environment Variables) for Production 
 
 Without them the app works normally; it just stops logging.
 
+## Colleague link
+Share the app internally as `https://pathtocalm.vercel.app/?colleague`. Colleagues who arrive this way get anonymous
+mood sharing switched on by default, with a notice banner and a one-tap "Turn off". The app remembers them, so later
+visits can use the plain link. Anyone arriving via the plain link (the public) keeps sharing off by default.
+
 ## Adding badge artwork
 Five badges use placeholder emblems. To add art, save a square image (about 480px, .webp) in `public/images/` and set `img: '/images/name.webp'` on that badge in `src/data/badges.js`.
 
