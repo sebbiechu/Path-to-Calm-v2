@@ -75,7 +75,7 @@ export default function App() {
   const durationMs = useMemo(() => totalMs(buildSteps(settings)), [settings]);
 
   const start = () => {
-    audio.preload();
+    audio.unlock();
     logSessionStart();
     setMoodBefore(null);
     setStage(settings.moodCheck ? 'mood' : 'session');
