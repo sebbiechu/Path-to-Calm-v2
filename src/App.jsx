@@ -249,7 +249,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="page">
+    <div className={`page${showNotice ? ' has-notice' : ''}`}>
       <header className="site-header">
         <img className="logo logo-light" src="/images/people_logo.svg" alt="People Development" />
         <img className="logo logo-dark" src="/images/white_people_logo.svg" alt="People Development" />

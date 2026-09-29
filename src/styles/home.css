@@ -98,6 +98,8 @@
 .share-actions .btn { min-height: 40px; padding: 0 14px; font-size: 0.875rem; }
 
 /* Colleague sharing notice: sits at the bottom, doesn't block the page */
+.page.has-notice { padding-bottom: 200px; }
+@media (max-width: 600px) { .page.has-notice { padding-bottom: 320px; } }
 .share-notice {
   position: fixed;
   z-index: 20;
