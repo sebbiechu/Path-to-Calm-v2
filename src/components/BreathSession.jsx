@@ -3,7 +3,7 @@ import { buildSteps, createEngine, totalMs } from '../lib/engine.js';
 import * as audio from '../lib/audio.js';
 import { read, write } from '../lib/storage.js';
 import { clock, plural } from '../lib/format.js';
-import { XP_PER_SESSION } from '../data/achievements.js';
+import BadgeArt from './BadgeArt.jsx';
 import { cue, stopCues } from '../lib/cues.js';
 import { moodLabel } from '../data/mood.js';
 import MoodPicker from './MoodPicker.jsx';
@@ -50,7 +50,7 @@ function useWakeLock(active) {
   }, [active]);
 }
 
-export default function BreathSession({ settings, label, moodBefore = null, onComplete, onMood, onExit }) {
+export default function BreathSession({ settings, label, moodBefore = null, newBadges = [], onComplete, onMood, onExit }) {
   const steps = useMemo(() => buildSteps(settings), [settings]);
   const total = useMemo(() => totalMs(steps), [steps]);
 
@@ -262,7 +262,7 @@ export default function BreathSession({ settings, label, moodBefore = null, onCo
         ) : (
         <p className="session-sub">
           {done
-            ? `You breathed for ${finalSeconds < 60 ? plural(finalSeconds, 'second') : plural(Math.round(finalSeconds / 60), 'minute')}. +${XP_PER_SESSION} XP`
+            ? `You breathed for ${finalSeconds < 60 ? plural(finalSeconds, 'second') : plural(Math.round(finalSeconds / 60), 'minute')}.`
             : sub ||
               (settings.rounds > 1
                 ? `Round ${step.round} of ${settings.rounds}, breath ${step.breath} of ${settings.breaths}`
@@ -279,6 +279,17 @@ export default function BreathSession({ settings, label, moodBefore = null, onCo
           </p>
         )}
         {status === 'paused' && <p className="session-paused">Paused</p>}
+        {done && newBadges.length > 0 && !(moodBefore !== null && moodAfter === null) && (
+          <div className="unlock" role="status">
+            <BadgeArt badge={newBadges[0]} size={52} />
+            <div>
+              <p className="unlock-title">
+                {newBadges.length === 1 ? 'New badge' : `${newBadges.length} new badges`}: {newBadges.map((b) => b.title).join(', ')}
+              </p>
+              <p className="unlock-sub">Finish to read what you unlocked</p>
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="session-controls">

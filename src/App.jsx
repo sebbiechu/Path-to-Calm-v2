@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PlanCard from './components/PlanCard.jsx';
 import PresetPicker from './components/PresetPicker.jsx';
 import SettingsModal from './components/SettingsModal.jsx';
@@ -6,10 +6,12 @@ import DisclaimerModal from './components/DisclaimerModal.jsx';
 import ProgressPanel from './components/ProgressPanel.jsx';
 import BreathSession from './components/BreathSession.jsx';
 import { PRESETS, findPreset, defaultSettings, isCustomised } from './data/presets.js';
-import { XP_PER_SESSION } from './data/achievements.js';
+import { BADGES, LEGACY_XP, findBadge } from './data/badges.js';
+import { evaluateBadges, daysThisWeek } from './lib/badges.js';
+import BadgeModal from './components/BadgeModal.jsx';
 import { buildSteps, totalMs } from './lib/engine.js';
 import { logSessionStart, shareMood } from './lib/telemetry.js';
-import { applyCompletion, currentStreak } from './lib/stats.js';
+import { applyCompletion } from './lib/stats.js';
 import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
 import * as audio from './lib/audio.js';
@@ -39,6 +41,24 @@ function loadStats() {
   };
 }
 
+function loadList(key) {
+  try {
+    const v = JSON.parse(read(key, '[]'));
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+// Earned badges as { id: 'YYYY-MM-DD' }. First run: carry over badges earned with the old XP system.
+function loadEarned() {
+  const saved = readJSON('ptc.badges', null);
+  if (saved) return saved;
+  const xp = readNumber('xp', 0);
+  const today = localDay();
+  return Object.fromEntries(LEGACY_XP.filter((l) => xp >= l.xp).map((l) => [l.id, today]));
+}
+
 function loadMoods() {
   try {
     return JSON.parse(read('ptc.moods', '[]'));
@@ -50,7 +70,15 @@ function loadMoods() {
 export default function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [stats, setStats] = useState(loadStats);
-  const [xp, setXp] = useState(() => readNumber('xp', 0));
+  const [history, setHistory] = useState(() => loadList('ptc.history'));
+  const [earned, setEarned] = useState(loadEarned);
+  const [newBadges, setNewBadges] = useState([]);
+  const [openBadge, setOpenBadge] = useState(null); // { id } opened from the panel
+  const [badgeQueue, setBadgeQueue] = useState([]); // new badges to show one after another
+  const newBadgesRef = useRef([]);
+  useEffect(() => {
+    newBadgesRef.current = newBadges;
+  }, [newBadges]);
   const [modal, setModal] = useState(() => (read(DISCLAIMER_KEY) === DISCLAIMER_VERSION ? null : 'disclaimer-block'));
   const [stage, setStage] = useState(null); // null | 'mood' | 'session'
   const [moodBefore, setMoodBefore] = useState(null);
@@ -58,7 +86,21 @@ export default function App() {
 
   useEffect(() => writeJSON('ptc.settings', settings), [settings]);
   useEffect(() => writeJSON('ptc.stats', stats), [stats]);
-  useEffect(() => write('xp', String(xp)), [xp]);
+  useEffect(() => writeJSON('ptc.history', history.slice(-1000)), [history]);
+  useEffect(() => writeJSON('ptc.badges', earned), [earned]);
+
+  // Work out badge progress, and spot anything newly earned
+  const badgeStatus = useMemo(
+    () => evaluateBadges({ history, moods, totalSeconds: stats.totalSeconds }),
+    [history, moods, stats.totalSeconds]
+  );
+  useEffect(() => {
+    const fresh = BADGES.filter((b) => badgeStatus[b.id]?.done && !earned[b.id]).map((b) => b.id);
+    if (!fresh.length) return;
+    const today = localDay();
+    setEarned((e) => ({ ...e, ...Object.fromEntries(fresh.map((id) => [id, today])) }));
+    setNewBadges((n) => [...n, ...fresh]);
+  }, [badgeStatus, earned]);
   useEffect(() => writeJSON('ptc.moods', moods.slice(-365)), [moods]);
 
   // Theme: apply now, and follow the phone if set to system
@@ -78,6 +120,7 @@ export default function App() {
     audio.unlock();
     logSessionStart();
     setMoodBefore(null);
+    setNewBadges([]);
     setStage(settings.moodCheck ? 'mood' : 'session');
   };
 
@@ -95,18 +138,26 @@ export default function App() {
     [moodBefore, settings.presetId, settings.shareMood]
   );
 
-  // Full session finished: minutes, streak, session count and XP
-  const handleComplete = useCallback((seconds) => {
-    setStats((s) => applyCompletion(s, seconds));
-    setXp((x) => x + XP_PER_SESSION);
-  }, []);
+  // Full session finished: minutes, session count and a history entry for badges
+  const handleComplete = useCallback(
+    (seconds) => {
+      setStats((s) => applyCompletion(s, seconds));
+      setHistory((h) => [
+        ...h,
+        { day: localDay(), hour: new Date().getHours(), preset: settings.presetId, seconds, rounds: settings.rounds },
+      ]);
+    },
+    [settings.presetId, settings.rounds]
+  );
 
-  // Leaving early still counts the minutes you breathed, but no XP or streak
+  // Leaving early still counts the minutes you breathed. On finishing, show any new badge.
   const handleExit = useCallback(({ seconds, completed }) => {
     if (!completed && seconds > 0) {
       setStats((s) => ({ ...s, totalSeconds: s.totalSeconds + seconds }));
     }
     setStage(null);
+    setBadgeQueue(newBadgesRef.current);
+    setNewBadges([]);
   }, []);
 
   return (
@@ -146,7 +197,14 @@ export default function App() {
         </main>
 
         <aside className="aside">
-          <ProgressPanel stats={{ ...stats, currentStreak: currentStreak(stats) }} xp={xp} moods={settings.moodCheck ? moods : null} />
+          <ProgressPanel
+            stats={stats}
+            weekDays={daysThisWeek(history)}
+            moods={settings.moodCheck ? moods : null}
+            earned={earned}
+            status={badgeStatus}
+            onOpenBadge={(id) => setOpenBadge({ id })}
+          />
         </aside>
       </div>
 
@@ -184,6 +242,18 @@ export default function App() {
         />
       )}
 
+      {(badgeQueue.length > 0 || openBadge) && (
+        <BadgeModal
+          key={badgeQueue[0] || openBadge.id}
+          badge={findBadge(badgeQueue[0] || openBadge.id)}
+          earnedOn={earned[badgeQueue[0] || openBadge.id]}
+          status={badgeStatus[badgeQueue[0] || openBadge.id]}
+          isNew={badgeQueue.length > 0}
+          remaining={Math.max(0, badgeQueue.length - 1)}
+          onClose={() => (badgeQueue.length ? setBadgeQueue((q) => q.slice(1)) : setOpenBadge(null))}
+        />
+      )}
+
       {stage === 'mood' && (
         <MoodScreen
           label={preset.label}
@@ -198,6 +268,7 @@ export default function App() {
           settings={settings}
           label={preset.label}
           moodBefore={moodBefore}
+          newBadges={newBadges.map(findBadge)}
           onComplete={handleComplete}
           onMood={handleMood}
           onExit={handleExit}

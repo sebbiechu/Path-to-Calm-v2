@@ -1,16 +1,10 @@
 import { localDay, daysBetween } from './storage.js';
 
-// Record a completed session: minutes, session count and streak
+// Record a completed session: minutes, session count and last day
 export function applyCompletion(stats, seconds, today = localDay()) {
   const gap = stats.lastDay ? daysBetween(stats.lastDay, today) : null;
   const streak = gap === 0 ? stats.streak || 1 : gap === 1 ? stats.streak + 1 : 1;
   return { totalSeconds: stats.totalSeconds + seconds, sessions: stats.sessions + 1, streak, lastDay: today };
-}
-
-// A streak only counts if you breathed today or yesterday
-export function currentStreak(stats, today = localDay()) {
-  if (!stats.lastDay) return 0;
-  return daysBetween(stats.lastDay, today) <= 1 ? stats.streak : 0;
 }
 
 const round1 = (n) => Math.round(n * 10) / 10;

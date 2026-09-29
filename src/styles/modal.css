@@ -145,7 +145,20 @@ input[type='range'] { width: 100%; accent-color: var(--rose); height: 28px; }
 
 /* Badge detail */
 .badge-modal .modal-body { justify-items: center; text-align: center; }
-.badge-modal img { width: 180px; height: 180px; }
+.badge-name { font-size: 1.375rem; color: var(--ink) !important; margin-top: -4px; }
+.badge-status { font-size: 0.875rem; }
+.learn-card {
+  text-align: left;
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px;
+  border-radius: var(--r-md);
+  background: var(--mist);
+  width: 100%;
+}
+.learn-card h3 { font-size: 1.0625rem; font-weight: 500; }
+.learn-card p { color: var(--ink); line-height: 1.6; }
+.learn-teaser { font-size: 0.875rem; }
 
 @media (max-width: 600px) {
   .modal-overlay { place-items: end stretch; padding: 0; }

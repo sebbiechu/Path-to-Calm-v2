@@ -87,6 +87,20 @@
 .session-sub { color: var(--ink-soft); max-width: 36ch; min-height: 1.6em; }
 .mood-result { color: var(--ink); margin-top: -12px; }
 .session .mood { width: min(520px, calc(100vw - 32px)); }
+.unlock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 12px 18px 12px 12px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: unlock-in 0.5s ease both;
+}
+.unlock-title { font-weight: 500; }
+.unlock-sub { font-size: 0.8125rem; color: var(--ink-soft); }
+@keyframes unlock-in { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
 .session-paused {
   font-size: 0.875rem;
   font-weight: 500;
@@ -111,4 +125,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .session-glow, .orb-frame { transition: none; }
+  .unlock { animation: none; }
 }

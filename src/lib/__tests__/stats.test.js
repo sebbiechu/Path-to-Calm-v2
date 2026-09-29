@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyCompletion, currentStreak, moodSummary } from '../stats.js';
+import { applyCompletion, moodSummary } from '../stats.js';
 
 const fresh = { totalSeconds: 0, sessions: 0, streak: 0, lastDay: '' };
 
@@ -27,13 +27,6 @@ describe('applyCompletion', () => {
     s = applyCompletion(s, 60, '2026-09-29');
     expect(s.streak).toBe(1);
   });
-});
-
-describe('currentStreak', () => {
-  const stats = { streak: 5, lastDay: '2026-09-28' };
-  it('shows the streak if you breathed yesterday', () => expect(currentStreak(stats, '2026-09-29')).toBe(5));
-  it('shows zero once a day is missed', () => expect(currentStreak(stats, '2026-09-30')).toBe(0));
-  it('handles no history', () => expect(currentStreak(fresh, '2026-09-29')).toBe(0));
 });
 
 describe('moodSummary', () => {

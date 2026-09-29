@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import Modal from './Modal.jsx';
-import { ACHIEVEMENTS } from '../data/achievements.js';
+import { BADGES } from '../data/badges.js';
 import { findPreset } from '../data/presets.js';
 import { moodSummary } from '../lib/stats.js';
+import BadgeArt from './BadgeArt.jsx';
 
 // Each recent session as a line from "before" to "after" on a 1 to 5 scale
 function MoodChart({ entries }) {
@@ -34,7 +33,7 @@ function MoodSection({ moods }) {
   const summary = moodSummary(moods);
   if (!summary) {
     return (
-      <div className="mood-panel">
+      <div className="panel-section">
         <h3>How you feel</h3>
         <p className="muted">Rate how you feel before and after a session to see what helps you most.</p>
       </div>
@@ -47,10 +46,9 @@ function MoodSection({ moods }) {
       : change === 0
         ? 'On average your mood stays about the same after a session.'
         : 'On average you feel slightly less calm after a session. Try a longer exhale.';
-  const text = `${headline} Based on ${count} ${count === 1 ? 'session' : 'sessions'}.`;
 
   return (
-    <div className="mood-panel" role="img" aria-label={text}>
+    <div className="panel-section" role="img" aria-label={`${headline} Based on ${count} sessions.`}>
       <h3>How you feel</h3>
       <p>{headline}</p>
       <MoodChart entries={moods} />
@@ -67,11 +65,8 @@ function MoodSection({ moods }) {
   );
 }
 
-export default function ProgressPanel({ stats, xp, moods }) {
-  const [open, setOpen] = useState(null);
-  const next = ACHIEVEMENTS.find((a) => xp < a.threshold);
-  const prevThreshold = next ? ACHIEVEMENTS[ACHIEVEMENTS.indexOf(next) - 1]?.threshold ?? 0 : 0;
-  const pct = next ? ((xp - prevThreshold) / (next.threshold - prevThreshold)) * 100 : 100;
+export default function ProgressPanel({ stats, weekDays, moods, earned, status, onOpenBadge }) {
+  const earnedCount = BADGES.filter((b) => earned[b.id]).length;
 
   return (
     <section className="progress" aria-labelledby="progress-title">
@@ -83,8 +78,8 @@ export default function ProgressPanel({ stats, xp, moods }) {
           <dd>{Math.floor(stats.totalSeconds / 60)}</dd>
         </div>
         <div>
-          <dt>Day streak</dt>
-          <dd>{stats.currentStreak}</dd>
+          <dt>Days this week</dt>
+          <dd>{weekDays}</dd>
         </div>
         <div>
           <dt>Sessions</dt>
@@ -94,42 +89,34 @@ export default function ProgressPanel({ stats, xp, moods }) {
 
       {moods && <MoodSection moods={moods} />}
 
-      <div className="xp">
-        <div className="xp-row">
-          <span>{xp} XP</span>
-          <span>{next ? `${next.threshold - xp} XP to ${next.title}` : 'All badges unlocked'}</span>
+      <div className="panel-section">
+        <div className="badges-head">
+          <h3>Badges</h3>
+          <span className="muted">
+            {earnedCount} of {BADGES.length}
+          </span>
         </div>
-        <div className="xp-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} aria-label="Progress to next badge">
-          <div className="xp-fill" style={{ width: `${pct}%` }} />
-        </div>
+        <ul className="badges">
+          {BADGES.map((b) => {
+            const got = Boolean(earned[b.id]);
+            const p = status[b.id]?.progress;
+            return (
+              <li key={b.id}>
+                <button
+                  type="button"
+                  className={`badge${got ? ' unlocked' : ''}`}
+                  onClick={() => onOpenBadge(b.id)}
+                  aria-label={`${b.title}: ${got ? 'earned' : b.goal}`}
+                >
+                  <BadgeArt badge={b} size={56} />
+                  <span className="badge-title">{b.title}</span>
+                  <span className="badge-sub">{got ? 'Earned' : p ? `${p[0]} of ${p[1]}` : 'Locked'}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-
-      <ul className="badges">
-        {ACHIEVEMENTS.map((a) => {
-          const unlocked = xp >= a.threshold;
-          return (
-            <li key={a.id}>
-              <button
-                type="button"
-                className={`badge${unlocked ? ' unlocked' : ''}`}
-                onClick={() => unlocked && setOpen(a)}
-                disabled={!unlocked}
-              >
-                <img src={a.img} alt="" width="96" height="96" loading="lazy" />
-                <span className="badge-title">{a.title}</span>
-                <span className="badge-sub">{unlocked ? 'Unlocked' : `${a.threshold} XP`}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      {open && (
-        <Modal title={open.title} onClose={() => setOpen(null)} className="badge-modal">
-          <img src={open.img} alt="" width="200" height="200" />
-          <p>{open.description}</p>
-        </Modal>
-      )}
     </section>
   );
 }

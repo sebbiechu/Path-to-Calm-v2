@@ -6,7 +6,8 @@ A calming breathing app to help you pause, breathe and feel better, anytime, any
 - Guided breathing with five exercises (Abdominal, Pursed-lip, 4-7-8, Coherent, Extended exhale)
 - Custom timings, multiple rounds, rest between rounds and longer holds each round
 - Sound cues (with a mute toggle) and a completion chime
-- Progress tracking: minutes, day streak, sessions, XP and badges (stored in the browser)
+- Progress tracking: minutes, days this week and sessions (stored in the browser)
+- Eight milestone badges, each unlocking a short "why this works" card
 - Keeps the screen awake during a session and pauses if the phone locks
 - Installable as an app (PWA) and works offline
 - Light and dark mode, following the device by default
@@ -30,6 +31,9 @@ Set these in Vercel (Project > Settings > Environment Variables) for Production 
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon (public) key |
 
 Without them the app works normally; it just stops logging.
+
+## Adding badge artwork
+Five badges use placeholder emblems. To add art, save a square image (about 480px, .webp) in `public/images/` and set `img: '/images/name.webp'` on that badge in `src/data/badges.js`.
 
 ## Supabase tables
 `sessions` (one empty row per session started) and `mood_checks` (before/after scores, exercise, length, date). Both are insert-only for the public key: the app can add rows but never read them back.
