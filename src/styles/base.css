@@ -36,6 +36,8 @@ h1, h2, h3, p { margin: 0; }
 .btn.primary:hover { background: var(--rose-deep); }
 .btn.quiet { background: var(--surface); border-color: var(--line); color: var(--ink); }
 .btn.quiet:hover { border-color: var(--ink-soft); }
+.btn.danger { background: var(--surface); border-color: var(--rose); color: var(--rose-deep); }
+.btn.danger:hover { background: var(--exhale-fill); }
 
 .link-btn {
   background: none;

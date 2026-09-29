@@ -53,6 +53,10 @@
 }
 .footer-note { margin-right: auto; font-size: 0.875rem; color: var(--ink-soft); }
 
+/* Reset progress */
+.settings-group.reset { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 8px; }
+.reset-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
 /* Settings tabs */
 .tabs {
   display: flex;

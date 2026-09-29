@@ -125,6 +125,23 @@ export default function App() {
     write('ptc.tourDone', '1');
   }, []);
 
+  // Wipe progress on this device (settings are kept)
+  const resetProgress = () => {
+    setStats({ totalSeconds: 0, sessions: 0, streak: 0, lastDay: '' });
+    setHistory([]);
+    setMoods([]);
+    setEarned({});
+    setNewBadges([]);
+    setBadgeQueue([]);
+    ['xp', 'stats_minutes', 'stats_streak', 'stats_last_day'].forEach((k) => {
+      try {
+        localStorage.removeItem(k); // old keys, so nothing is carried over again
+      } catch {
+        // storage unavailable
+      }
+    });
+  };
+
   const answerShare = (yes) => {
     setSettings((s) => ({ ...s, shareMood: yes }));
     setShareAsked(true);
@@ -258,6 +275,7 @@ export default function App() {
       {modal === 'settings' && (
         <SettingsModal
           settings={settings}
+          onReset={resetProgress}
           onClose={() => setModal(null)}
           onSave={(next) => {
             setSettings(next);

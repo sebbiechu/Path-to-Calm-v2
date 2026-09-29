@@ -126,7 +126,54 @@ const THEMES = [
   { value: 'dark', label: 'Dark' },
 ];
 
-export default function SettingsModal({ settings, onSave, onClose }) {
+function ResetProgress({ onReset }) {
+  const [step, setStep] = useState('idle'); // idle | confirm | done
+  return (
+    <section className="settings-group reset">
+      <h3>Reset progress</h3>
+      {step === 'done' ? (
+        <p className="field-hint" role="status">
+          Your progress has been reset.
+        </p>
+      ) : step === 'confirm' ? (
+        <>
+          <p className="field-hint" role="alert">
+            This clears your minutes, sessions, mood history and badges straight away, and can’t be undone.
+          </p>
+          <div className="reset-actions">
+            <button
+              type="button"
+              className="btn danger"
+              onClick={() => {
+                onReset();
+                setStep('done');
+              }}
+            >
+              Yes, reset my progress
+            </button>
+            <button type="button" className="btn quiet" onClick={() => setStep('idle')}>
+              Keep my progress
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="field-hint">
+            Start again from zero on this device. Your settings stay the same. Anonymous scores already shared can’t
+            be removed, as they aren’t linked to you.
+          </p>
+          <div className="reset-actions">
+            <button type="button" className="btn danger" onClick={() => setStep('confirm')}>
+              Reset progress
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+export default function SettingsModal({ settings, onSave, onClose, onReset }) {
   const [draft, setDraft] = useState(settings);
   const [tab, setTab] = useState('session');
   const set = (key) => (value) => setDraft((d) => ({ ...d, [key]: value }));
@@ -256,6 +303,7 @@ export default function SettingsModal({ settings, onSave, onClose }) {
           />
         )}
       </section>
+      <ResetProgress onReset={onReset} />
       </div>
     </Modal>
   );
