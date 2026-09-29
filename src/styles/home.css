@@ -4,8 +4,8 @@
   padding-bottom: max(48px, env(safe-area-inset-bottom));
 }
 
-.site-header { padding: 24px 0 8px; }
-.logo { height: 64px; width: auto; }
+.site-header { max-width: 1120px; margin: 0 auto; padding: 24px 0 0; }
+.logo { height: 112px; width: auto; }
 .logo-dark { display: none; }
 [data-theme='dark'] .logo-light { display: none; }
 [data-theme='dark'] .logo-dark { display: block; }
@@ -131,7 +131,8 @@
   .layout { grid-template-columns: 1fr; }
   .main, .aside { padding-top: 8px; }
   .main { max-width: none; }
-  .logo { height: 48px; }
+  .logo { height: 72px; }
+  .site-header { padding-bottom: 12px; }
 }
 
 @media (max-width: 359px) {
