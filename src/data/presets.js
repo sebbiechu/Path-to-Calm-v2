@@ -65,6 +65,12 @@ export function defaultSettings(preset = PRESETS[0]) {
     rest: 0,
     holdIncrease: 0,
     getReady: 3,
+    // Preferences
+    theme: 'system', // system | light | dark
+    moodCheck: true,
+    shareMood: false,
+    vibrate: false,
+    voice: false,
   };
 }
 

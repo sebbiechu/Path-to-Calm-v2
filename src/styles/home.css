@@ -6,6 +6,9 @@
 
 .site-header { padding: 24px 0 8px; }
 .logo { height: 64px; width: auto; }
+.logo-dark { display: none; }
+[data-theme='dark'] .logo-light { display: none; }
+[data-theme='dark'] .logo-dark { display: block; }
 
 .layout {
   max-width: 1120px;
@@ -127,6 +130,22 @@
 .badge:disabled { cursor: default; }
 .badge-title { font-size: 0.8125rem; font-weight: 500; }
 .badge-sub { font-size: 0.75rem; color: var(--ink-soft); }
+
+/* Mood summary */
+.mood-panel { display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.mood-panel h3 { font-size: 0.9375rem; font-weight: 500; }
+.mood-panel p { font-size: 0.875rem; }
+.mood-chart { width: 100%; height: auto; }
+.mood-chart .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+.mood-chart .stem { stroke: var(--ink-soft); stroke-width: 2; stroke-linecap: round; opacity: 0.5; }
+.mood-chart .up .stem { stroke: var(--sage); opacity: 1; }
+.mood-chart .before { fill: var(--surface); stroke: var(--ink-soft); stroke-width: 1.5; }
+.mood-chart .after { fill: var(--rose); }
+.mood-legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8125rem !important; }
+.mood-legend .muted { margin-left: auto; }
+.key { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.key.before { border: 1.5px solid var(--ink-soft); }
+.key.after { background: var(--rose); margin-left: 8px; }
 
 @media (max-width: 880px) {
   .layout { grid-template-columns: 1fr; }

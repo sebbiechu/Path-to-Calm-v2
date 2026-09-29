@@ -13,6 +13,7 @@
   --amber: #f7ba49;
   --sky: #6f9be6;
   --sage: #7db8a4;
+  --sage-text: #3d7a64; /* readable on white */
 
   --phase-inhale: var(--sky);
   --phase-hold: var(--amber);
@@ -26,4 +27,44 @@
   --r-lg: 24px;
 
   --shadow: 0 1px 2px rgb(30 35 66 / 0.06), 0 8px 24px rgb(30 35 66 / 0.06);
+
+  /* Rhythm bar fills and text, per phase */
+  --inhale-fill: color-mix(in srgb, var(--sky) 22%, var(--surface));
+  --inhale-text: #2c4f93;
+  --hold-fill: color-mix(in srgb, var(--amber) 30%, var(--surface));
+  --hold-text: #7a5208;
+  --exhale-fill: color-mix(in srgb, var(--rose) 16%, var(--surface));
+  --exhale-text: var(--rose-deep);
+
+  /* Orb highlight strength */
+  --orb-wash-in: rgb(255 255 255 / 0.6);
+  --orb-wash-out: rgb(255 255 255 / 0.15);
+  --orb-shine: rgb(255 255 255 / 0.85);
+
+  color-scheme: light;
+}
+
+/* Dark: deep indigo for evening and bedtime use. Phase colours stay the same. */
+[data-theme='dark'] {
+  --mist: #161a2e;
+  --surface: #20253d;
+  --ink: #e8eaf4;
+  --ink-soft: #a3a8c3;
+  --line: #353c5c;
+  --rose-deep: #ff5a86;
+  --sage-text: #9fd6c2;
+
+  --inhale-fill: color-mix(in srgb, var(--sky) 28%, var(--surface));
+  --inhale-text: #bcd2ff;
+  --hold-fill: color-mix(in srgb, var(--amber) 26%, var(--surface));
+  --hold-text: #ffd98f;
+  --exhale-fill: color-mix(in srgb, var(--rose) 26%, var(--surface));
+  --exhale-text: #ffb3c7;
+
+  --orb-wash-in: rgb(255 255 255 / 0.25);
+  --orb-wash-out: rgb(255 255 255 / 0);
+  --orb-shine: rgb(255 255 255 / 0.4);
+
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
 }

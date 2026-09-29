@@ -1,6 +1,9 @@
 // Breathing engine: turns settings into a flat list of timed steps, then plays them.
 // Plain JS (not a React hook) so it can live in a ref without breaking hook rules.
 
+// Longest single hold we allow, however many rounds or increases are set
+export const HOLD_CAP_MS = 30000;
+
 export function buildSteps(s) {
   const steps = [];
   const sec = (n) => Math.round(Math.max(0, Number(n) || 0) * 1000);
@@ -8,7 +11,7 @@ export function buildSteps(s) {
   if (sec(s.getReady) > 0) steps.push({ phase: 'ready', ms: sec(s.getReady), round: 1, breath: 1 });
 
   for (let round = 1; round <= s.rounds; round++) {
-    const holdMs = sec(s.hold) + (round - 1) * sec(s.holdIncrease);
+    const holdMs = Math.min(HOLD_CAP_MS, sec(s.hold) + (round - 1) * sec(s.holdIncrease));
     for (let breath = 1; breath <= s.breaths; breath++) {
       steps.push({ phase: 'inhale', ms: sec(s.inhale), round, breath });
       if (holdMs > 0) steps.push({ phase: 'hold', ms: holdMs, round, breath });

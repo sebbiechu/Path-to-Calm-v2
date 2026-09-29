@@ -8,9 +8,12 @@ import BreathSession from './components/BreathSession.jsx';
 import { PRESETS, findPreset, defaultSettings, isCustomised } from './data/presets.js';
 import { XP_PER_SESSION } from './data/achievements.js';
 import { buildSteps, totalMs } from './lib/engine.js';
-import { logSessionStart } from './lib/supabase.js';
+import { logSessionStart, shareMood } from './lib/telemetry.js';
+import { applyCompletion, currentStreak } from './lib/stats.js';
+import { applyTheme } from './lib/theme.js';
+import MoodScreen from './components/MoodScreen.jsx';
 import * as audio from './lib/audio.js';
-import { read, write, readNumber, readJSON, writeJSON, localDay, daysBetween } from './lib/storage.js';
+import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/storage.js';
 
 // Bump this whenever the disclaimer wording changes
 const DISCLAIMER_VERSION = '1.0.0';
@@ -36,10 +39,12 @@ function loadStats() {
   };
 }
 
-// A streak only counts if you breathed today or yesterday
-function currentStreak(stats) {
-  if (!stats.lastDay) return 0;
-  return daysBetween(stats.lastDay, localDay()) <= 1 ? stats.streak : 0;
+function loadMoods() {
+  try {
+    return JSON.parse(read('ptc.moods', '[]'));
+  } catch {
+    return [];
+  }
 }
 
 export default function App() {
@@ -47,11 +52,24 @@ export default function App() {
   const [stats, setStats] = useState(loadStats);
   const [xp, setXp] = useState(() => readNumber('xp', 0));
   const [modal, setModal] = useState(() => (read(DISCLAIMER_KEY) === DISCLAIMER_VERSION ? null : 'disclaimer-block'));
-  const [running, setRunning] = useState(false);
+  const [stage, setStage] = useState(null); // null | 'mood' | 'session'
+  const [moodBefore, setMoodBefore] = useState(null);
+  const [moods, setMoods] = useState(loadMoods);
 
   useEffect(() => writeJSON('ptc.settings', settings), [settings]);
   useEffect(() => writeJSON('ptc.stats', stats), [stats]);
   useEffect(() => write('xp', String(xp)), [xp]);
+  useEffect(() => writeJSON('ptc.moods', moods.slice(-365)), [moods]);
+
+  // Theme: apply now, and follow the phone if set to system
+  useEffect(() => {
+    applyTheme(settings.theme);
+    if (settings.theme !== 'system') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => applyTheme('system');
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [settings.theme]);
 
   const preset = findPreset(settings.presetId);
   const durationMs = useMemo(() => totalMs(buildSteps(settings)), [settings]);
@@ -59,17 +77,27 @@ export default function App() {
   const start = () => {
     audio.preload();
     logSessionStart();
-    setRunning(true);
+    setMoodBefore(null);
+    setStage(settings.moodCheck ? 'mood' : 'session');
   };
+
+  const beginBreathing = (mood) => {
+    setMoodBefore(mood);
+    setStage('session');
+  };
+
+  const handleMood = useCallback(
+    (after, seconds) => {
+      const entry = { day: localDay(), preset: settings.presetId, before: moodBefore, after, seconds };
+      setMoods((m) => [...m, entry]);
+      if (settings.shareMood) shareMood(entry);
+    },
+    [moodBefore, settings.presetId, settings.shareMood]
+  );
 
   // Full session finished: minutes, streak, session count and XP
   const handleComplete = useCallback((seconds) => {
-    const today = localDay();
-    setStats((s) => {
-      const gap = s.lastDay ? daysBetween(s.lastDay, today) : null;
-      const streak = gap === 0 ? s.streak || 1 : gap === 1 ? s.streak + 1 : 1;
-      return { totalSeconds: s.totalSeconds + seconds, sessions: s.sessions + 1, streak, lastDay: today };
-    });
+    setStats((s) => applyCompletion(s, seconds));
     setXp((x) => x + XP_PER_SESSION);
   }, []);
 
@@ -78,13 +106,14 @@ export default function App() {
     if (!completed && seconds > 0) {
       setStats((s) => ({ ...s, totalSeconds: s.totalSeconds + seconds }));
     }
-    setRunning(false);
+    setStage(null);
   }, []);
 
   return (
     <div className="page">
       <header className="site-header">
-        <img className="logo" src="/images/people_logo.svg" alt="People Development" />
+        <img className="logo logo-light" src="/images/people_logo.svg" alt="People Development" />
+        <img className="logo logo-dark" src="/images/white_people_logo.svg" alt="People Development" />
       </header>
 
       <div className="layout">
@@ -117,7 +146,7 @@ export default function App() {
         </main>
 
         <aside className="aside">
-          <ProgressPanel stats={{ ...stats, currentStreak: currentStreak(stats) }} xp={xp} />
+          <ProgressPanel stats={{ ...stats, currentStreak: currentStreak(stats) }} xp={xp} moods={settings.moodCheck ? moods : null} />
         </aside>
       </div>
 
@@ -155,8 +184,24 @@ export default function App() {
         />
       )}
 
-      {running && (
-        <BreathSession settings={settings} label={preset.label} onComplete={handleComplete} onExit={handleExit} />
+      {stage === 'mood' && (
+        <MoodScreen
+          label={preset.label}
+          onPick={beginBreathing}
+          onSkip={() => beginBreathing(null)}
+          onCancel={() => setStage(null)}
+        />
+      )}
+
+      {stage === 'session' && (
+        <BreathSession
+          settings={settings}
+          label={preset.label}
+          moodBefore={moodBefore}
+          onComplete={handleComplete}
+          onMood={handleMood}
+          onExit={handleExit}
+        />
       )}
     </div>
   );

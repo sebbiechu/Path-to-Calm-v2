@@ -4,6 +4,9 @@ import * as audio from '../lib/audio.js';
 import { read, write } from '../lib/storage.js';
 import { clock, plural } from '../lib/format.js';
 import { XP_PER_SESSION } from '../data/achievements.js';
+import { cue, stopCues } from '../lib/cues.js';
+import { moodLabel } from '../data/mood.js';
+import MoodPicker from './MoodPicker.jsx';
 
 const MIN = 0.62;
 const MAX = 1;
@@ -47,7 +50,7 @@ function useWakeLock(active) {
   }, [active]);
 }
 
-export default function BreathSession({ settings, label, onComplete, onExit }) {
+export default function BreathSession({ settings, label, moodBefore = null, onComplete, onMood, onExit }) {
   const steps = useMemo(() => buildSteps(settings), [settings]);
   const total = useMemo(() => totalMs(steps), [steps]);
 
@@ -55,6 +58,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
   const [status, setStatus] = useState('running'); // running | paused | done
   const [muted, setMuted] = useState(() => read('ptc.muted') === '1');
   const [finalSeconds, setFinalSeconds] = useState(0);
+  const [moodAfter, setMoodAfter] = useState(null);
 
   const engineRef = useRef(null);
   const orbRef = useRef(null);
@@ -64,6 +68,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
   const pauseBtnRef = useRef(null);
   const statusRef = useRef(status);
   const callbacks = useRef({ onComplete, onExit });
+  const cueRef = useRef({ vibrate: settings.vibrate, voice: settings.voice, muted });
 
   useEffect(() => {
     statusRef.current = status;
@@ -71,6 +76,10 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
   useEffect(() => {
     callbacks.current = { onComplete, onExit };
   }, [onComplete, onExit]);
+
+  useEffect(() => {
+    cueRef.current = { vibrate: settings.vibrate, voice: settings.voice, muted };
+  }, [settings.vibrate, settings.voice, muted]);
 
   useEffect(() => {
     audio.setMuted(muted);
@@ -84,11 +93,15 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
     const engine = createEngine(steps, {
       onStep: (st) => {
         setStep(st);
-        audio.playPhase(st.phase);
+        // Spoken cues replace the sound effects so they don't talk over each other
+        if (cueRef.current.voice) audio.stopAll();
+        else audio.playPhase(st.phase);
+        cue(st.phase, cueRef.current);
       },
       onDone: () => {
         const seconds = Math.round(engine.snapshot().elapsedMs / 1000);
         audio.stopAll();
+        stopCues();
         audio.playChime();
         setFinalSeconds(seconds);
         setStatus('done');
@@ -100,6 +113,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
     return () => {
       engine.stop();
       audio.stopAll();
+      stopCues();
     };
   }, [steps]);
 
@@ -137,6 +151,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
     if (statusRef.current === 'running') {
       engine.pause();
       audio.pauseAll();
+      stopCues();
       setStatus('paused');
     } else {
       engine.resume();
@@ -147,6 +162,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
 
   const restart = () => {
     audio.stopAll();
+    stopCues();
     setStatus('running');
     engineRef.current?.start();
   };
@@ -157,6 +173,7 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
     const seconds = engine ? Math.round(engine.snapshot().elapsedMs / 1000) : 0;
     engine?.stop();
     audio.stopAll();
+    stopCues();
     callbacks.current.onExit({ seconds, completed });
   }, []);
 
@@ -233,6 +250,16 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
           </div>
         </div>
 
+        {done && moodBefore !== null && moodAfter === null ? (
+          <MoodPicker
+            question="How do you feel now?"
+            onPick={(n) => {
+              setMoodAfter(n);
+              onMood?.(n, finalSeconds);
+            }}
+            onSkip={() => setMoodAfter(0)}
+          />
+        ) : (
         <p className="session-sub">
           {done
             ? `You breathed for ${finalSeconds < 60 ? plural(finalSeconds, 'second') : plural(Math.round(finalSeconds / 60), 'minute')}. +${XP_PER_SESSION} XP`
@@ -241,6 +268,16 @@ export default function BreathSession({ settings, label, onComplete, onExit }) {
                 ? `Round ${step.round} of ${settings.rounds}, breath ${step.breath} of ${settings.breaths}`
                 : `Breath ${step?.breath ?? 1} of ${settings.breaths}`)}
         </p>
+        )}
+        {done && moodAfter > 0 && (
+          <p className="session-sub mood-result">
+            {moodAfter > moodBefore
+              ? `You went from ${moodLabel(moodBefore).toLowerCase()} to ${moodLabel(moodAfter).toLowerCase()}.`
+              : moodAfter === moodBefore
+                ? `You stayed ${moodLabel(moodAfter).toLowerCase()}. Some sessions are like that.`
+                : 'You feel less calm than before. Try a longer exhale, or take a break.'}
+          </p>
+        )}
         {status === 'paused' && <p className="session-paused">Paused</p>}
       </main>
 

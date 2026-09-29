@@ -73,8 +73,8 @@
   border-radius: 50%;
   /* White washes over a currentColor base, so the orb follows the phase colour transition */
   background:
-    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.85), transparent 45%),
-    radial-gradient(circle, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.15));
+    radial-gradient(circle at 35% 30%, var(--orb-shine), transparent 45%),
+    radial-gradient(circle, var(--orb-wash-in), var(--orb-wash-out));
   background-color: currentColor;
   transform: scale(0.62);
   will-change: transform;
@@ -85,6 +85,8 @@
 .orb-count { font-size: 1rem; color: var(--ink-soft); min-height: 1.5em; font-variant-numeric: tabular-nums; }
 
 .session-sub { color: var(--ink-soft); max-width: 36ch; min-height: 1.6em; }
+.mood-result { color: var(--ink); margin-top: -12px; }
+.session .mood { width: min(520px, calc(100vw - 32px)); }
 .session-paused {
   font-size: 0.875rem;
   font-weight: 500;

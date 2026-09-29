@@ -4,6 +4,7 @@ import RhythmBar from './RhythmBar.jsx';
 import { buildSteps, totalMs } from '../lib/engine.js';
 import { aboutMinutes } from '../lib/format.js';
 import { findPreset } from '../data/presets.js';
+import { canSpeak, canVibrate } from '../lib/cues.js';
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
@@ -61,6 +62,31 @@ function Stepper({ id, label, hint, value, min, max, step = 1, onChange }) {
     </div>
   );
 }
+
+function Toggle({ id, label, hint, checked, disabled, onChange }) {
+  return (
+    <div className={`toggle${disabled ? ' disabled' : ''}`}>
+      <div>
+        <label htmlFor={id}>{label}</label>
+        {hint && <p className="field-hint">{hint}</p>}
+      </div>
+      <input
+        id={id}
+        type="checkbox"
+        role="switch"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+    </div>
+  );
+}
+
+const THEMES = [
+  { value: 'system', label: 'Match device' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
 
 export default function SettingsModal({ settings, onSave, onClose }) {
   const [draft, setDraft] = useState(settings);
@@ -121,7 +147,7 @@ export default function SettingsModal({ settings, onSave, onClose }) {
           <Stepper
             id="holdIncrease"
             label="Longer hold each round"
-            hint="Seconds added per round"
+            hint="Seconds added per round, up to 30s per hold"
             value={draft.holdIncrease}
             min={0}
             max={30}
@@ -140,6 +166,58 @@ export default function SettingsModal({ settings, onSave, onClose }) {
           max={10}
           onChange={set('getReady')}
         />
+      </section>
+
+      <section className="settings-group">
+        <h3>Preferences</h3>
+        <fieldset className="segmented">
+          <legend>Appearance</legend>
+          {THEMES.map((t) => (
+            <label key={t.value}>
+              <input
+                type="radio"
+                name="theme"
+                value={t.value}
+                checked={draft.theme === t.value}
+                onChange={() => set('theme')(t.value)}
+              />
+              <span>{t.label}</span>
+            </label>
+          ))}
+        </fieldset>
+        <Toggle
+          id="moodCheck"
+          label="Mood check"
+          hint="Rate how you feel before and after each session"
+          checked={draft.moodCheck}
+          onChange={set('moodCheck')}
+        />
+        <Toggle
+          id="shareMood"
+          label="Share anonymous mood scores"
+          hint="Helps People Development see whether sessions help. Only your before and after scores, the exercise and session length are sent. Nothing that identifies you."
+          checked={draft.moodCheck && draft.shareMood}
+          disabled={!draft.moodCheck}
+          onChange={set('shareMood')}
+        />
+        {canVibrate && (
+          <Toggle
+            id="vibrate"
+            label="Vibrate on each phase"
+            hint="So you can breathe with your eyes closed"
+            checked={draft.vibrate}
+            onChange={set('vibrate')}
+          />
+        )}
+        {canSpeak && (
+          <Toggle
+            id="voice"
+            label="Spoken cues"
+            hint="Says “breathe in”, “hold” and “breathe out” instead of playing sounds"
+            checked={draft.voice}
+            onChange={set('voice')}
+          />
+        )}
       </section>
     </Modal>
   );
