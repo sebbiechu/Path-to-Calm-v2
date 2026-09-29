@@ -5,7 +5,7 @@ import SettingsModal from './components/SettingsModal.jsx';
 import DisclaimerModal from './components/DisclaimerModal.jsx';
 import ProgressPanel from './components/ProgressPanel.jsx';
 import BreathSession from './components/BreathSession.jsx';
-import { PRESETS, findPreset, defaultSettings, isCustomised } from './data/presets.js';
+import { PRESETS, findPreset, defaultSettings, isCustomised, OLD_DEFAULT_BREATHS } from './data/presets.js';
 import { BADGES, LEGACY_XP, findBadge } from './data/badges.js';
 import { evaluateBadges, daysThisWeek } from './lib/badges.js';
 import BadgeModal from './components/BadgeModal.jsx';
@@ -25,7 +25,14 @@ const DISCLAIMER_KEY = 'disclaimer.v';
 function loadSettings() {
   const base = defaultSettings();
   const saved = readJSON('ptc.settings', null);
-  if (saved) return { ...base, ...saved };
+  if (saved) {
+    const settings = { ...base, ...saved };
+    // Anyone still on an old default breath count moves to the new shorter default
+    if (!saved.defaultsV2 && settings.breaths === OLD_DEFAULT_BREATHS[settings.presetId]) {
+      settings.breaths = findPreset(settings.presetId).breaths;
+    }
+    return { ...settings, defaultsV2: true };
+  }
   return { ...base, breaths: readNumber('breaths', base.breaths) };
 }
 

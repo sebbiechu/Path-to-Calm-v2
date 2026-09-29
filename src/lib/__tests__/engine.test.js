@@ -91,3 +91,16 @@ describe('createEngine', () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('preset defaults', async () => {
+  const { PRESETS } = await import('../../data/presets.js');
+  it('keep every exercise to about 3 minutes or less', () => {
+    PRESETS.forEach((p) => {
+      const ms = totalMs(buildSteps({ ...base, ...p, rounds: 1 }));
+      expect(ms).toBeLessThanOrEqual(3 * 60 * 1000);
+    });
+  });
+  it('starts 4-7-8 at 4 breaths', () => {
+    expect(PRESETS.find((p) => p.id === '478').breaths).toBe(4);
+  });
+});
