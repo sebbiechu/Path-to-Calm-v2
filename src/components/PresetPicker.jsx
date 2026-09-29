@@ -1,9 +1,13 @@
 import Modal from './Modal.jsx';
 import RhythmBar from './RhythmBar.jsx';
+import Tip from './Tip.jsx';
 
 export default function PresetPicker({ presets, activeId, onSelect, onClose }) {
   return (
     <Modal title="Choose an exercise" onClose={onClose} className="picker">
+      <Tip id="picker">
+        Not sure where to start? Try Extended exhale when you feel stressed, Coherent to focus, or 4&#8209;7&#8209;8 before bed.
+      </Tip>
       <ul className="picker-list">
         {presets.map((p) => (
           <li key={p.id}>

@@ -5,6 +5,7 @@ import { buildSteps, totalMs } from '../lib/engine.js';
 import { aboutMinutes } from '../lib/format.js';
 import { findPreset } from '../data/presets.js';
 import { canSpeak, canVibrate } from '../lib/cues.js';
+import Tip from './Tip.jsx';
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
@@ -114,6 +115,8 @@ export default function SettingsModal({ settings, onSave, onClose }) {
         </>
       }
     >
+      <Tip id="settings">Changes apply from your next session. Tap Save settings when you’re done.</Tip>
+
       <section className="settings-group">
         <div className="group-head">
           <h3>Breath timing</h3>

@@ -49,6 +49,32 @@
 }
 .footer-note { margin-right: auto; font-size: 0.875rem; color: var(--ink-soft); }
 
+/* One-time tips */
+.tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 8px 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--inhale-fill);
+  color: var(--inhale-text);
+}
+.tip p { color: inherit !important; font-size: 0.875rem; line-height: 1.5; flex: 1; }
+.tip-icon { flex: none; margin-top: 1px; }
+.tip-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+}
+.tip-close:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+
 /* Picker */
 .picker-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .picker-item {
