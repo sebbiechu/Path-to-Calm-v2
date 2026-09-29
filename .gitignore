@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vite cache
+.vite
+
+# Local env files (set these in Vercel instead)
+.env
+.env.*
+!.env.example

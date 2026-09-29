@@ -1,24 +1,42 @@
-# 🌿 Path to Calm
+# Path to Calm
 
-**Path to Calm** is a simple, calming breathing app designed to help you pause, breathe, and feel better — anytime, anywhere.
+A calming breathing app to help you pause, breathe and feel better, anytime, anywhere. Built by People Development.
 
-## ✨ What It Does
-- 🫁 **Guided breathing** to help reduce stress and improve focus  
-- 🎯 **Customisable sessions** so you can breathe at your own pace  
-- 🏆 **Achievements & XP** to keep you motivated  
-- 🔊 **Soothing audio cues** to guide each breath  
-- 📈 **Progress tracking** to see how far you’ve come  
+## What it does
+- Guided breathing with five exercises (Abdominal, Pursed-lip, 4-7-8, Coherent, Extended exhale)
+- Custom timings, multiple rounds, rest between rounds and longer holds each round
+- Sound cues (with a mute toggle) and a completion chime
+- Progress tracking: minutes, day streak, sessions, XP and badges (stored in the browser)
+- Keeps the screen awake during a session and pauses if the phone locks
 
-## 🪷 How to Use
-1. Choose a breathing style (or make your own)  
-2. Follow the on-screen guide — inhale, hold, exhale  
-3. Earn points, unlock badges, and build a calm habit  
+## Local development
+```bash
+npm install
+cp .env.example .env.local   # then add your Supabase URL and anon key
+npm run dev
+```
 
-## 💻 Works Anywhere
-Use Path to Calm on your desktop, tablet, or phone — no downloads needed.  
+## Environment variables
+Set these in Vercel (Project > Settings > Environment Variables) for Production and Preview:
 
----
+| Name | Value |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon (public) key |
 
-Breathe in.  
-Breathe out.  
-Find your path to calm.
+Without them the app works normally; it just stops logging session starts.
+
+## Project structure
+```
+src/
+  App.jsx               home screen, state, persistence
+  components/           UI (BreathSession is the full-screen exercise)
+  data/                 presets and badges
+  lib/engine.js         builds and plays the breath timeline
+  lib/audio.js          sound cues and chime
+  lib/storage.js        safe localStorage helpers
+  lib/supabase.js       optional session logging
+  styles/               tokens, base, home, modal, session
+```
+
+Breathe in. Breathe out. Find your path to calm.

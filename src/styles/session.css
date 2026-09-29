@@ -1,276 +1,112 @@
-/* =========================
-   Session / Focus Styles
-   ========================= */
-
-/* Full-screen, soft gradient focus mode */
-.focus-wrap {
-  position: fixed; inset: 0;
-  display: grid; grid-template-rows: auto 1fr auto; gap: 0;
-  padding: 20px;
-  background:
-    radial-gradient(1200px 700px at 20% -10%, #cfe9ff 0%, transparent 60%),
-    radial-gradient(900px 600px at 110% 10%, #ffe6ef 0%, transparent 55%),
-    linear-gradient(180deg, #f7fbff 0%, #ffffff 70%);
-}
-
-.focus-chrome {
-  display: flex; align-items: center; gap: 12px;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 10px 12px;
-  justify-content: space-between;
-}
-.focus-close { background: transparent; border: none; font-size: 18px; padding: 6px 8px; }
-.focus-title { font-weight: 800; }
-.focus-sub { color: #6b7280; margin-left: 8px; font-size: 13px; }
-
-.focus-bg {
-  position: absolute; inset: 0; z-index: -1;
-  transition: background 600ms ease, opacity 600ms ease;
-}
-.focus-bg.inhale { background: radial-gradient(40% 40% at 50% 50%, rgba(120,160,255,0.25), transparent 70%); }
-.focus-bg.hold   { background: radial-gradient(40% 40% at 50% 50%, rgba(148,163,255,0.22), transparent 70%); }
-.focus-bg.exhale { background: radial-gradient(40% 40% at 50% 50%, rgba(255,170,200,0.22), transparent 70%); }
-
-/* =========================
-   Breathing Orb
-   ========================= */
-
-.orb-wrap { display: grid; place-items: center; padding: 24px 0; }
-
-.orb {
-  /* size */
-  width: clamp(220px, 40vmin, 360px);
-  height: clamp(220px, 40vmin, 360px);
-
-  /* visuals */
-  border-radius: 50%;
-  display: grid; place-items: center;
-  background:
-    radial-gradient(75% 75% at 50% 50%, #ffffff, #eef2ff 70%),
-    radial-gradient(120% 120% at 30% 20%, rgba(71,96,255,0.35), transparent 60%),
-    radial-gradient(120% 120% at 70% 80%, rgba(255,120,170,0.35), transparent 60%);
-  box-shadow: 0 30px 90px rgba(71,96,255,0.25);
-  border: 1px solid rgba(255,255,255,0.9);
-
-  /* default transform (small) when idle */
-  transform: scale(0.85);
-}
-
-/* — Animations —
-   Inhale grows small → big; Exhale shrinks big → small.
-   Hold does NOT animate; it stays at the inhale end size.
-*/
-
-/* Use a CSS variable for duration so .dur-XXXX classes can set it */
-.orb.inhale {
-  animation: inhaleAnim var(--dur, 4s) ease-in-out forwards;
-}
-
-.orb.exhale {
-  animation: exhaleAnim var(--dur, 4s) ease-in-out forwards;
-}
-
-/* HOLD keeps the expanded size; no animation */
-.orb.hold {
-  transform: scale(1.08);
-  transition: none;
-}
-
-/* Optional: if you implement a paused state via class */
-.orb.paused {
-  animation-play-state: paused !important;
-  transition: none !important;
-}
-
-/* Labels */
-.orb-label { font-weight: 800; color: #384dd0; letter-spacing: .02em; }
-
-/* Keyframes */
-@keyframes inhaleAnim { from { transform: scale(0.85); } to { transform: scale(1.08); } }
-@keyframes exhaleAnim { from { transform: scale(1.08); } to { transform: scale(0.85); } }
-
-/* Duration classes (set a custom property instead of touching animation-duration) */
-[class*="dur-"] { }
-.dur-2500{ --dur: 2.5s; }
-.dur-3000{ --dur: 3s; }
-.dur-4000{ --dur: 4s; }
-.dur-6000{ --dur: 6s; }
-.dur-7000{ --dur: 7s; }
-.dur-8000{ --dur: 8s; }
-
-/* Info below orb */
-.orb-info { margin-top: 70px; color: #6b7280; font-weight: 600; text-align: center; }
-.focus-actions { display: flex; gap: 8px; justify-content: center; padding: 10px 0 0; }
-
-/* Orb scales gracefully on phones (keep both for safety; clamp above already helps) */
-.orb {
-  width: clamp(200px, 56vw, 360px);
-  height: clamp(200px, 56vw, 360px);
-}
-
-/* =========================
-   Responsive tweaks
-   ========================= */
-
-@media (max-width: 520px) {
-  .session-card { padding: 14px; }
-  .session-header { gap: 10px; }
-  .session-title { font-size: 18px; }
-  .session-subtitle { font-size: 13px; }
-  .pacer-wrap { padding: 16px 8px 6px; }
-  .orb-info { margin-top: 10px; }
-  .session-footer { justify-content: center; gap: 10px; }
-}
-
-/* =========================
-   Two-panel Session Layout
-   ========================= */
-
-.session-layout {
+.session {
+  --phase: var(--ink-soft);
   position: fixed;
   inset: 0;
+  z-index: 30;
   display: grid;
-  grid-template-columns: 1fr 320px;
-  height: 100vh;
-  background:
-    radial-gradient(1200px 700px at 20% -10%, #cfe9ff 0%, transparent 60%),
-    radial-gradient(900px 600px at 110% 10%, #ffe6ef 0%, transparent 55%),
-    linear-gradient(180deg, #f7fbff 0%, #ffffff 70%);
-  color: #111;
-}
-
-@media (max-width: 900px) {
-  .session-layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-  }
-}
-
-/* Left breathing section */
-.session-main {
-  position: relative;
-  display: grid;
-  place-items: center;
+  grid-template-rows: auto 1fr auto;
+  background: var(--mist);
+  color: var(--ink);
+  padding: max(16px, env(safe-area-inset-top)) clamp(16px, 4vw, 40px) max(20px, env(safe-area-inset-bottom));
   overflow: hidden;
 }
+.session.phase-inhale { --phase: var(--phase-inhale); }
+.session.phase-hold { --phase: var(--phase-hold); }
+.session.phase-exhale { --phase: var(--phase-exhale); }
+.session.phase-rest, .session.phase-done { --phase: var(--phase-rest); }
 
-.focus-bg-layer {
+/* currentColor lets the colour transition smoothly between phases */
+.session-glow {
   position: absolute;
-  inset: 0;
+  inset: -20%;
+  color: var(--phase);
+  background: radial-gradient(closest-side, currentColor, transparent);
+  opacity: 0.22;
+  transition: color 1.2s ease;
   pointer-events: none;
 }
 
-/* Right info panel */
-.session-panel {
-  background: rgba(255,255,255,0.65);
-  backdrop-filter: blur(10px);
-  border-left: 1px solid rgba(0,0,0,0.08);
-  padding: 1.25rem 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
-@media (max-width: 900px) {
-  .session-panel {
-    border-left: none;
-    border-top: 1px solid rgba(0,0,0,0.08);
-  }
-}
-
-.panel-title { font-size: 1.2rem; font-weight: 800; }
-.panel-recipe { font-size: 0.95rem; color: #555; }
-.panel-dot { opacity: .5; margin: 0 .25rem; }
-.panel-timer { font-weight: 700; letter-spacing: .02em; }
-
-.panel-phase {
+.session-top {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 12px;
 }
+.session-name { font-weight: 500; }
+.session-top-right { display: flex; align-items: center; gap: 4px; }
+.session-clock { color: var(--ink-soft); font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
 
-.phase-pill {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.06);
-  border: 1px solid rgba(0,0,0,0.12);
-}
-
-.phase-pill.inhale { background: rgba(56,189,248,0.14);  border-color: rgba(56,189,248,0.25); }
-.phase-pill.hold   { background: rgba(234,179,8,0.16);   border-color: rgba(234,179,8,0.28); }
-.phase-pill.exhale { background: rgba(99,102,241,0.16);  border-color: rgba(99,102,241,0.28); }
-.phase-pill.done   { background: rgba(16,185,129,0.16);  border-color: rgba(16,185,129,0.28); }
-
-.phase-meta { font-size: 0.9rem; color: #666; }
-
-.panel-desc {
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: #444;
-}
-
-.panel-actions {
-  margin-top: auto;
+.session-stage {
+  position: relative;
   display: grid;
-  gap: 0.75rem;
+  place-content: center;
+  justify-items: center;
+  gap: 28px;
+  text-align: center;
 }
 
-.btn {
-  padding: 0.65rem 1rem;
-  border: none;
-  cursor: pointer;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.btn.primary { background: #ec008c; color: #fff; }
-.btn.secondary { background: #374151; color: #fff; }
-.btn.ghost { background: transparent; border: 1px solid rgba(0,0,0,0.22); }
-.btn.danger { background: #ef4444; color: #fff; }
-
-.btn:active { transform: translateY(1px); }
-
-@media (max-width: 900px) {
-  .panel-actions {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-}
-
-/* =========================
-   Pause Overlay
-   ========================= */
-
-.paused-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(2px);
+.orb-frame {
+  position: relative;
+  width: min(72vmin, 440px);
+  aspect-ratio: 1;
   display: grid;
   place-items: center;
-  z-index: 2;
+  color: var(--phase);
+  transition: color 1.2s ease;
 }
 
-.paused-card {
+.orb-ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+.orb-ring circle { fill: none; stroke-width: 0.8; }
+.ring-track { stroke: var(--line); }
+.ring-progress {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.orb {
+  position: absolute;
+  inset: 5%;
+  border-radius: 50%;
+  /* White washes over a currentColor base, so the orb follows the phase colour transition */
+  background:
+    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.85), transparent 45%),
+    radial-gradient(circle, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.15));
+  background-color: currentColor;
+  transform: scale(0.62);
+  will-change: transform;
+}
+
+.orb-text { position: relative; display: grid; gap: 2px; color: var(--ink); }
+.orb-title { font-size: clamp(1.5rem, 4.5vmin, 2.25rem); font-weight: 400; letter-spacing: -0.01em; }
+.orb-count { font-size: 1rem; color: var(--ink-soft); min-height: 1.5em; font-variant-numeric: tabular-nums; }
+
+.session-sub { color: var(--ink-soft); max-width: 36ch; min-height: 1.6em; }
+.session-paused {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.session-controls {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.9);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.session-controls .btn { min-width: 120px; }
+
+@media (max-width: 420px) {
+  .session-controls .btn { min-width: 0; flex: 1; padding: 0 12px; }
 }
 
-.paused-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #fbbf24;
-}
-
-.paused-text {
-  font-weight: 600;
+@media (prefers-reduced-motion: reduce) {
+  .session-glow, .orb-frame { transition: none; }
 }

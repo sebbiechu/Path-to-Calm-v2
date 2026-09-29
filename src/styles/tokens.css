@@ -1,0 +1,29 @@
+/* Palette: a cool mist base, with the People Development logo colours
+   (rose and amber) doing the work. Each breath phase owns one colour,
+   used identically in the rhythm bars and the session. */
+:root {
+  --mist: #eef1f6;
+  --surface: #ffffff;
+  --ink: #1e2342;
+  --ink-soft: #5a6082;
+  --line: #d9dde8;
+
+  --rose: #e31956;
+  --rose-deep: #b8103f;
+  --amber: #f7ba49;
+  --sky: #6f9be6;
+  --sage: #7db8a4;
+
+  --phase-inhale: var(--sky);
+  --phase-hold: var(--amber);
+  --phase-exhale: var(--rose);
+  --phase-rest: var(--sage);
+
+  --font: 'Lexend', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 24px;
+
+  --shadow: 0 1px 2px rgb(30 35 66 / 0.06), 0 8px 24px rgb(30 35 66 / 0.06);
+}

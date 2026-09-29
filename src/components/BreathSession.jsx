@@ -1,229 +1,268 @@
-// /src/components/BreathSession.jsx
-import { useEffect, useRef, useState } from 'react';
-import useBreathEngine from '../hooks/useBreathEngine.js';
-import { playPhaseSound, stopAllSounds, pauseAllSounds, resumeCurrentSound } from '../utils/audio.js';
-import { supabase } from '../utils/supabaseClient.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { buildSteps, createEngine, totalMs } from '../lib/engine.js';
+import * as audio from '../lib/audio.js';
+import { read, write } from '../lib/storage.js';
+import { clock, plural } from '../lib/format.js';
+import { XP_PER_SESSION } from '../data/achievements.js';
 
-function formatMMSS(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+const MIN = 0.62;
+const MAX = 1;
+const ease = (p) => 0.5 - 0.5 * Math.cos(Math.PI * p);
+
+function orbScale(phase, p) {
+  if (phase === 'inhale') return MIN + (MAX - MIN) * ease(p);
+  if (phase === 'hold') return MAX;
+  if (phase === 'exhale') return MAX - (MAX - MIN) * ease(p);
+  if (phase === 'rest' || phase === 'done') return 0.78;
+  return MIN;
 }
 
-function getBrowserKey() {
-  const KEY = 'ptc_user_key';
-  let k = localStorage.getItem(KEY);
-  if (!k) {
-    k = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`);
-    localStorage.setItem(KEY, k);
-  }
-  return k;
+const LABELS = {
+  ready: ['Get ready', 'Sit comfortably and relax your shoulders'],
+  inhale: ['Breathe in', null],
+  hold: ['Hold', null],
+  exhale: ['Breathe out', null],
+  rest: ['Rest', 'Breathe normally'],
+  done: ['Well done', null],
+};
+
+function useWakeLock(active) {
+  useEffect(() => {
+    if (!active || !('wakeLock' in navigator)) return;
+    let lock = null;
+    const acquire = async () => {
+      try {
+        lock = await navigator.wakeLock.request('screen');
+      } catch {
+        lock = null;
+      }
+    };
+    const onVisible = () => document.visibilityState === 'visible' && acquire();
+    acquire();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      lock?.release?.().catch(() => {});
+    };
+  }, [active]);
 }
 
-export default function BreathSession({ preset, onClose }) {
-  const [phase, setPhase] = useState('inhale');
-  const [remaining, setRemaining] = useState(preset.breaths);
-  const [paused, setPaused] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
-  const [restartCooling, setRestartCooling] = useState(false);
+export default function BreathSession({ settings, label, onComplete, onExit }) {
+  const steps = useMemo(() => buildSteps(settings), [settings]);
+  const total = useMemo(() => totalMs(steps), [steps]);
 
-  const circleRef = useRef(null);
-  const heartbeatRef = useRef(null);
-  const userKeyRef = useRef(null);
+  const [step, setStep] = useState(steps[0] || null);
+  const [status, setStatus] = useState('running'); // running | paused | done
+  const [muted, setMuted] = useState(() => read('ptc.muted') === '1');
+  const [finalSeconds, setFinalSeconds] = useState(0);
 
-  // --- Engine ---------------------------------------------------------------
   const engineRef = useRef(null);
-  if (!engineRef.current) {
-    engineRef.current = useBreathEngine({
-      inhaleMs: preset.inMs,
-      holdMs: preset.holdMs ?? 0,
-      exhaleMs: preset.exMs,
-      breaths: preset.breaths,
-      onPhase: (nextPhase, breathsLeft) => {
-        // UI state
-        setPhase(nextPhase);
-        setRemaining(breathsLeft);
+  const orbRef = useRef(null);
+  const ringRef = useRef(null);
+  const countRef = useRef(null);
+  const timeRef = useRef(null);
+  const pauseBtnRef = useRef(null);
+  const statusRef = useRef(status);
+  const callbacks = useRef({ onComplete, onExit });
 
-        // Play sound only if not paused (guards race conditions)
-        if (!paused) playPhaseSound(nextPhase);
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+  useEffect(() => {
+    callbacks.current = { onComplete, onExit };
+  }, [onComplete, onExit]);
 
-        // Circle classes (phase → CSS), plus a duration marker class
-        const el = circleRef.current;
-        if (!el) return;
-        el.classList.remove('inhale','exhale','hold');
-        el.classList.add(nextPhase);
-        // remove old dur-*
-        Array.from(el.classList).forEach(c => c.startsWith('dur-') && el.classList.remove(c));
-        const dur = nextPhase === 'inhale'
-          ? preset.inMs
-          : nextPhase === 'exhale'
-            ? preset.exMs
-            : (preset.holdMs ?? 0);
-        el.classList.add(`dur-${Math.max(dur || 0, 1)}`);
+  useEffect(() => {
+    audio.setMuted(muted);
+    write('ptc.muted', muted ? '1' : '0');
+  }, [muted]);
+
+  useWakeLock(status !== 'done');
+
+  // Engine lifecycle
+  useEffect(() => {
+    const engine = createEngine(steps, {
+      onStep: (st) => {
+        setStep(st);
+        audio.playPhase(st.phase);
       },
       onDone: () => {
-        setPhase('done');
-        stopAllSounds();
-        setPaused(true);
-      }
+        const seconds = Math.round(engine.snapshot().elapsedMs / 1000);
+        audio.stopAll();
+        audio.playChime();
+        setFinalSeconds(seconds);
+        setStatus('done');
+        callbacks.current.onComplete(seconds);
+      },
     });
-  }
-  const engine = engineRef.current;
-
-  // --- Presence + session lifecycle ----------------------------------------
-  useEffect(() => {
-    let mounted = true;
-
-    async function resolveUserKey() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        return user?.id || getBrowserKey();
-      } catch {
-        return getBrowserKey();
-      }
-    }
-
-    async function joinPresence(key) {
-      const nowISO = new Date().toISOString();
-      await supabase.from('presence')
-        .upsert({ user_key: key, last_seen: nowISO }, { onConflict: 'user_key' });
-    }
-
-    async function beat(key) {
-      await supabase.from('presence')
-        .update({ last_seen: new Date().toISOString() })
-        .eq('user_key', key);
-    }
-
-    async function leave(key) {
-      await supabase.from('presence').delete().eq('user_key', key);
-    }
-
-    (async () => {
-      const key = await resolveUserKey();
-      if (!mounted) return;
-      userKeyRef.current = key;
-
-      await joinPresence(key);
-      engine.start();                 // clean start
-      setPaused(false);
-      setPhase('inhale');
-      setRemaining(preset.breaths);
-
-      heartbeatRef.current = setInterval(() => beat(key), 15000);
-      beat(key); // immediate beat
-    })();
-
-    return () => {
-      mounted = false;
-      engine.stop();
-      stopAllSounds();
-      clearInterval(heartbeatRef.current);
-      if (userKeyRef.current) leave(userKeyRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset.inMs, preset.holdMs, preset.exMs, preset.breaths]);
-
-  // --- Elapsed timer (pauses when paused or done) --------------------------
-  useEffect(() => {
-    if (paused || phase === 'done') return;
-    const id = setInterval(() => setElapsed(e => e + 1), 1000);
-    return () => clearInterval(id);
-  }, [paused, phase]);
-
-  // --- Pause / Resume -------------------------------------------------------
-  const handlePauseToggle = () => {
-    if (!paused) {
-      engine.pause();
-      setPaused(true);
-      // freeze audio
-      pauseAllSounds();
-    } else {
-      setPaused(false);
-      // resume engine at current phase/timeLeft
-      engine.resume();
-      // resume current phase audio
-      resumeCurrentSound();
-    }
-  };
-
-  // --- Restart (debounced & safe) ------------------------------------------
-  const handleRestart = () => {
-    if (restartCooling) return;
-    setRestartCooling(true);
-    setTimeout(() => setRestartCooling(false), 600); // simple debounce
-
-    engine.stop();     // cancel any pending timeout
-    stopAllSounds();   // silence
-    setElapsed(0);
-    setPaused(false);
-    setPhase('inhale');
-    setRemaining(preset.breaths);
+    engineRef.current = engine;
     engine.start();
+    return () => {
+      engine.stop();
+      audio.stopAll();
+    };
+  }, [steps]);
 
-    if (userKeyRef.current) {
-      supabase.from('presence')
-        .update({ last_seen: new Date().toISOString() })
-        .eq('user_key', userKeyRef.current);
+  // Animation loop: writes straight to the DOM so React doesn't re-render 60 times a second
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let raf;
+    const frame = () => {
+      const snap = engineRef.current?.snapshot();
+      if (snap) {
+        const finished = statusRef.current === 'done';
+        const phase = finished ? 'done' : snap.step?.phase;
+        if (orbRef.current) {
+          orbRef.current.style.transform = `scale(${reduce ? 0.85 : orbScale(phase, snap.progress)})`;
+        }
+        if (ringRef.current) {
+          ringRef.current.style.strokeDashoffset = String(finished ? 0 : 1 - snap.progress);
+        }
+        if (countRef.current) {
+          countRef.current.textContent = finished || !snap.step ? '' : String(Math.ceil(snap.stepLeftMs / 1000));
+        }
+        if (timeRef.current) {
+          timeRef.current.textContent = clock(total - snap.elapsedMs);
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [total]);
+
+  const togglePause = useCallback(() => {
+    const engine = engineRef.current;
+    if (!engine || statusRef.current === 'done') return;
+    if (statusRef.current === 'running') {
+      engine.pause();
+      audio.pauseAll();
+      setStatus('paused');
+    } else {
+      engine.resume();
+      audio.resumeCurrent();
+      setStatus('running');
     }
+  }, []);
+
+  const restart = () => {
+    audio.stopAll();
+    setStatus('running');
+    engineRef.current?.start();
   };
 
-  // --- End session ----------------------------------------------------------
-  const handleEnd = async () => {
-    engine.stop();
-    stopAllSounds();
-    clearInterval(heartbeatRef.current);
-    if (userKeyRef.current) {
-      await supabase.from('presence').delete().eq('user_key', userKeyRef.current);
-    }
-    onClose();
-  };
+  const exit = useCallback(() => {
+    const engine = engineRef.current;
+    const completed = statusRef.current === 'done';
+    const seconds = engine ? Math.round(engine.snapshot().elapsedMs / 1000) : 0;
+    engine?.stop();
+    audio.stopAll();
+    callbacks.current.onExit({ seconds, completed });
+  }, []);
+
+  // Auto-pause if the phone locks or the tab is hidden
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden' && statusRef.current === 'running') togglePause();
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => document.removeEventListener('visibilitychange', onHide);
+  }, [togglePause]);
+
+  // Keyboard: Space pauses/resumes, Esc ends
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') exit();
+      if (e.key === ' ' && e.target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        togglePause();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [exit, togglePause]);
+
+  useEffect(() => {
+    pauseBtnRef.current?.focus();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, []);
+
+  const done = status === 'done';
+  const phase = done ? 'done' : step?.phase || 'ready';
+  const [title, sub] = LABELS[phase];
 
   return (
-    <div className="session-layout" role="dialog" aria-modal="true" aria-label="Breathing session">
-      <div className={`session-main ${phase}`}>
-        <div className={`focus-bg ${phase}`} />
-        <div className="orb-wrap">
-          <div ref={circleRef} className="orb inhale dur-4000">
-            <span className="orb-label">
-              {phase === 'done' ? 'All done' : phase === 'inhale' ? 'Breathe in' : phase === 'hold' ? 'Hold' : 'Breathe out'}
-            </span>
-          </div>
-          <div className="orb-info">
-            {phase !== 'done'
-              ? <span className="counter">{remaining} {remaining === 1 ? 'breath' : 'breaths'} left</span>
-              : <button className="btn primary" onClick={handleEnd}>Finish</button>}
+    <div className={`session phase-${phase}`} role="dialog" aria-modal="true" aria-label="Breathing session">
+      <div className="session-glow" aria-hidden="true" />
+
+      <header className="session-top">
+        <span className="session-name">{label}</span>
+        <div className="session-top-right">
+          <span className="session-clock" aria-label="Time remaining">
+            <span ref={timeRef}>{clock(total)}</span> left
+          </span>
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => setMuted((m) => !m)}
+            aria-pressed={muted}
+            aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4z" />
+              {muted ? <path d="M17 9l5 6M22 9l-5 6" /> : <path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" />}
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main className="session-stage">
+        <div className="orb-frame">
+          <svg className="orb-ring" viewBox="0 0 100 100" aria-hidden="true">
+            <circle className="ring-track" cx="50" cy="50" r="48" pathLength="1" />
+            <circle ref={ringRef} className="ring-progress" cx="50" cy="50" r="48" pathLength="1" />
+          </svg>
+          <div ref={orbRef} className="orb" aria-hidden="true" />
+          <div className="orb-text" aria-live="polite">
+            <span className="orb-title">{title}</span>
+            <span ref={countRef} className="orb-count" aria-hidden="true" />
           </div>
         </div>
 
-        {paused && (
-          <div className="paused-overlay" aria-live="polite">
-            <div className="paused-card">
-              <div className="paused-dot" />
-              <div className="paused-text">Paused</div>
-            </div>
-          </div>
+        <p className="session-sub">
+          {done
+            ? `You breathed for ${finalSeconds < 60 ? plural(finalSeconds, 'second') : plural(Math.round(finalSeconds / 60), 'minute')}. +${XP_PER_SESSION} XP`
+            : sub ||
+              (settings.rounds > 1
+                ? `Round ${step.round} of ${settings.rounds}, breath ${step.breath} of ${settings.breaths}`
+                : `Breath ${step?.breath ?? 1} of ${settings.breaths}`)}
+        </p>
+        {status === 'paused' && <p className="session-paused">Paused</p>}
+      </main>
+
+      <footer className="session-controls">
+        {done ? (
+          <button type="button" className="btn primary" onClick={exit} ref={pauseBtnRef}>
+            Finish
+          </button>
+        ) : (
+          <>
+            <button type="button" className="btn quiet" onClick={restart}>
+              Restart
+            </button>
+            <button type="button" className="btn primary" onClick={togglePause} ref={pauseBtnRef}>
+              {status === 'paused' ? 'Resume' : 'Pause'}
+            </button>
+            <button type="button" className="btn quiet" onClick={exit}>
+              End session
+            </button>
+          </>
         )}
-      </div>
-
-      <aside className="session-panel">
-        <h2 className="panel-title">{preset.label}</h2>
-        <div className="panel-recipe">
-          {preset.inMs/1000}s in{preset.holdMs ? ` • ${preset.holdMs/1000}s hold` : ''} • {preset.exMs/1000}s out
-          <span className="panel-dot"> · </span>{preset.breaths} breaths
-        </div>
-        <div className="panel-timer">⏱ {formatMMSS(elapsed)}</div>
-        <div className="panel-phase">
-          <span className={`phase-pill ${phase}`}>{phase === 'done' ? 'Complete' : phase[0].toUpperCase()+phase.slice(1)}</span>
-          {phase !== 'done' && <span className="phase-meta">· {remaining} {remaining === 1 ? 'breath' : 'breaths'} left</span>}
-        </div>
-        {preset.description && <p className="panel-desc">{preset.description}</p>}
-        <div className="panel-actions">
-          <button className="btn ghost" onClick={handlePauseToggle}>{paused ? 'Resume' : 'Pause'}</button>
-          <button className="btn secondary" onClick={handleRestart} disabled={restartCooling}>Restart</button>
-          <button className="btn danger" onClick={handleEnd}>End Session</button>
-        </div>
-      </aside>
+      </footer>
     </div>
   );
 }
