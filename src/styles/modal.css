@@ -12,6 +12,7 @@
 .modal-card {
   width: min(560px, 100%);
   max-height: min(88vh, 860px);
+  max-height: min(88dvh, 860px);
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -34,6 +35,9 @@
 .modal-body {
   padding: 8px 24px 24px;
   overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: grid;
   gap: 14px;
 }
@@ -48,6 +52,32 @@
   border-top: 1px solid var(--line);
 }
 .footer-note { margin-right: auto; font-size: 0.875rem; color: var(--ink-soft); }
+
+/* Settings tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-md);
+  background: var(--mist);
+  position: sticky;
+  top: -8px;
+  z-index: 1;
+}
+.tab {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+.tab[aria-selected='true'] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgb(30 35 66 / 0.12); }
+.tab-panel { display: grid; gap: 14px; }
+.tab-panel[hidden] { display: none; }
+.tab-panel > .settings-group:first-child { padding-top: 4px; }
 
 /* One-time tips */
 .tip {
@@ -104,7 +134,8 @@
 .field-hint { font-size: 0.8125rem; color: var(--ink-soft); margin-top: -4px; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: end; }
 
-input[type='range'] { width: 100%; accent-color: var(--rose); height: 28px; }
+input[type='range'] { width: 100%; accent-color: var(--rose); height: 28px; touch-action: pan-y; }
+.modal-footer { flex: none; }
 
 .stepper {
   display: grid;
@@ -191,6 +222,7 @@ input[type='range'] { width: 100%; accent-color: var(--rose); height: 28px; }
   .modal-card, .modal-card.settings, .modal-card.disclaimer, .modal-card.badge-modal {
     width: 100%;
     max-height: 92vh;
+    max-height: 92dvh;
     border-radius: var(--r-lg) var(--r-lg) 0 0;
     padding-bottom: env(safe-area-inset-bottom);
     animation: rise 0.24s ease;

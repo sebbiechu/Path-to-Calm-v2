@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Modal from './Modal.jsx';
 import RhythmBar from './RhythmBar.jsx';
 import { buildSteps, totalMs } from '../lib/engine.js';
@@ -83,6 +83,43 @@ function Toggle({ id, label, hint, checked, disabled, onChange }) {
   );
 }
 
+const TABS = [
+  { id: 'session', label: 'Session' },
+  { id: 'prefs', label: 'Preferences' },
+];
+
+function Tabs({ active, onChange }) {
+  const refs = useRef({});
+  const onKey = (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const i = TABS.findIndex((t) => t.id === active);
+    const next = TABS[(i + (e.key === 'ArrowRight' ? 1 : -1) + TABS.length) % TABS.length].id;
+    onChange(next);
+    refs.current[next]?.focus();
+  };
+  return (
+    <div className="tabs" role="tablist" aria-label="Settings sections">
+      {TABS.map((t) => (
+        <button
+          key={t.id}
+          ref={(el) => (refs.current[t.id] = el)}
+          type="button"
+          role="tab"
+          id={`tab-${t.id}`}
+          aria-selected={active === t.id}
+          aria-controls={`panel-${t.id}`}
+          tabIndex={active === t.id ? 0 : -1}
+          className="tab"
+          onClick={() => onChange(t.id)}
+          onKeyDown={onKey}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const THEMES = [
   { value: 'system', label: 'Match device' },
   { value: 'light', label: 'Light' },
@@ -91,6 +128,7 @@ const THEMES = [
 
 export default function SettingsModal({ settings, onSave, onClose }) {
   const [draft, setDraft] = useState(settings);
+  const [tab, setTab] = useState('session');
   const set = (key) => (value) => setDraft((d) => ({ ...d, [key]: value }));
   const preset = findPreset(draft.presetId);
   const duration = totalMs(buildSteps(draft));
@@ -100,12 +138,12 @@ export default function SettingsModal({ settings, onSave, onClose }) {
 
   return (
     <Modal
-      title="Session settings"
+      title="Settings"
       onClose={onClose}
       className="settings"
       footer={
         <>
-          <p className="footer-note">Total {aboutMinutes(duration)}</p>
+          {tab === 'session' ? <p className="footer-note">Total {aboutMinutes(duration)}</p> : <span className="footer-note" />}
           <button type="button" className="btn quiet" onClick={onClose}>
             Cancel
           </button>
@@ -117,6 +155,9 @@ export default function SettingsModal({ settings, onSave, onClose }) {
     >
       <Tip id="settings">Changes apply from your next session. Tap Save settings when you’re done.</Tip>
 
+      <Tabs active={tab} onChange={setTab} />
+
+      <div role="tabpanel" id="panel-session" aria-labelledby="tab-session" hidden={tab !== 'session'} className="tab-panel">
       <section className="settings-group">
         <div className="group-head">
           <h3>Breath timing</h3>
@@ -171,8 +212,10 @@ export default function SettingsModal({ settings, onSave, onClose }) {
         />
       </section>
 
+      </div>
+
+      <div role="tabpanel" id="panel-prefs" aria-labelledby="tab-prefs" hidden={tab !== 'prefs'} className="tab-panel">
       <section className="settings-group">
-        <h3>Preferences</h3>
         <fieldset className="segmented">
           <legend>Appearance</legend>
           {THEMES.map((t) => (
@@ -222,6 +265,7 @@ export default function SettingsModal({ settings, onSave, onClose }) {
           />
         )}
       </section>
+      </div>
     </Modal>
   );
 }
