@@ -8,6 +8,7 @@ A calming breathing app to help you pause, breathe and feel better, anytime, any
 - Sound cues (with a mute toggle) and a completion chime
 - Progress tracking: minutes, days this week and sessions (stored in the browser)
 - Eight milestone badges, each unlocking a short "why this works" card
+- A four-step tour for new users (replay any time from "How it works")
 - Keeps the screen awake during a session and pauses if the phone locks
 - Installable as an app (PWA) and works offline
 - Light and dark mode, following the device by default

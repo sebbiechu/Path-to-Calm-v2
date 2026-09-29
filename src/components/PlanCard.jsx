@@ -4,7 +4,7 @@ import { aboutMinutes, plural } from '../lib/format.js';
 export default function PlanCard({ label, customised, settings, durationMs, onChange }) {
   const { breaths, rounds } = settings;
   return (
-    <section className="plan" aria-label="Your breathing exercise">
+    <section className="plan" aria-label="Your breathing exercise" data-tour="plan">
       <div className="plan-head">
         <h2 className="plan-name">
           {label}

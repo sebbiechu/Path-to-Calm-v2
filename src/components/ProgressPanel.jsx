@@ -29,7 +29,29 @@ function MoodChart({ entries }) {
   );
 }
 
-function MoodSection({ moods }) {
+function SharePrompt({ onAnswer }) {
+  return (
+    <div className="share-prompt" role="region" aria-labelledby="share-title">
+      <p id="share-title" className="share-title">
+        Help People Development see if this works?
+      </p>
+      <p className="muted">
+        Share your before and after scores anonymously. Only the scores, exercise and session length are sent, never
+        anything that identifies you. You can change this any time in Settings.
+      </p>
+      <div className="share-actions">
+        <button type="button" className="btn primary" onClick={() => onAnswer(true)}>
+          Share anonymously
+        </button>
+        <button type="button" className="btn quiet" onClick={() => onAnswer(false)}>
+          No thanks
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MoodSection({ moods, showSharePrompt, onShareAnswer }) {
   const summary = moodSummary(moods);
   if (!summary) {
     return (
@@ -48,28 +70,31 @@ function MoodSection({ moods }) {
         : 'On average you feel slightly less calm after a session. Try a longer exhale.';
 
   return (
-    <div className="panel-section" role="img" aria-label={`${headline} Based on ${count} sessions.`}>
+    <div className="panel-section">
       <h3>How you feel</h3>
-      <p>{headline}</p>
-      <MoodChart entries={moods} />
+      <div role="img" aria-label={`${headline} Based on ${count} sessions.`} className="mood-summary">
+        <p>{headline}</p>
+        <MoodChart entries={moods} />
+      </div>
       <p className="mood-legend">
         <span className="key before" /> Before <span className="key after" /> After
-        <span className="muted">Last {Math.min(12, count)} sessions</span>
+        <span className="muted">{count === 1 ? 'First session' : `Last ${Math.min(12, count)} sessions`}</span>
       </p>
       {best && (
         <p className="muted">
           {findPreset(best.preset).label} helps you most (+{best.change}).
         </p>
       )}
+      {showSharePrompt && <SharePrompt onAnswer={onShareAnswer} />}
     </div>
   );
 }
 
-export default function ProgressPanel({ stats, weekDays, moods, earned, status, onOpenBadge }) {
+export default function ProgressPanel({ stats, weekDays, moods, earned, status, onOpenBadge, showSharePrompt, onShareAnswer }) {
   const earnedCount = BADGES.filter((b) => earned[b.id]).length;
 
   return (
-    <section className="progress" aria-labelledby="progress-title">
+    <section className="progress" aria-labelledby="progress-title" data-tour="progress">
       <h2 id="progress-title">Your progress</h2>
 
       <dl className="stats">
@@ -87,7 +112,7 @@ export default function ProgressPanel({ stats, weekDays, moods, earned, status, 
         </div>
       </dl>
 
-      {moods && <MoodSection moods={moods} />}
+      {moods && <MoodSection moods={moods} showSharePrompt={showSharePrompt} onShareAnswer={onShareAnswer} />}
 
       <div className="panel-section">
         <div className="badges-head">

@@ -68,7 +68,71 @@
 .plan-meta { color: var(--ink-soft); font-size: 0.9375rem; }
 
 .actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.main > .link-btn { align-self: flex-start; margin-top: -8px; }
+.meta-links { display: flex; gap: 20px; margin-top: -8px; flex-wrap: wrap; }
+
+/* Mood chart */
+.mood-summary { display: grid; gap: 8px; }
+.mood-chart { width: 100%; height: auto; }
+.mood-chart .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+.mood-chart .stem { stroke: var(--ink-soft); stroke-width: 2; stroke-linecap: round; opacity: 0.5; }
+.mood-chart .up .stem { stroke: var(--sage); opacity: 1; }
+.mood-chart .before { fill: var(--surface); stroke: var(--ink-soft); stroke-width: 1.5; }
+.mood-chart .after { fill: var(--rose); }
+.mood-legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8125rem !important; }
+.mood-legend .muted { margin-left: auto; }
+.key { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.key.before { border: 1.5px solid var(--ink-soft); }
+.key.after { background: var(--rose); margin-left: 8px; }
+
+/* One-time share prompt, beside the mood chart */
+.share-prompt {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: var(--mist);
+}
+.share-title { font-weight: 500; font-size: 0.9375rem !important; }
+.share-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.share-actions .btn { min-height: 40px; padding: 0 14px; font-size: 0.875rem; }
+
+/* Onboarding tour */
+.tour { position: fixed; inset: 0; z-index: 50; }
+.tour-shade {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 12 24 / 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.tour-ring {
+  position: fixed;
+  border-radius: 18px;
+  box-shadow: 0 0 0 2px var(--rose), 0 0 0 8px rgb(227 25 86 / 0.18);
+  pointer-events: none;
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+.tour-card {
+  position: fixed;
+  width: min(360px, calc(100vw - 24px));
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: 0 24px 64px rgb(10 12 24 / 0.3);
+  transition: top 0.25s ease, left 0.25s ease;
+}
+.tour-count { font-size: 0.8125rem; color: var(--ink-soft); }
+.tour-card h2 { font-size: 1.1875rem; font-weight: 500; }
+.tour-card #tour-body { color: var(--ink-soft); font-size: 0.9375rem; }
+.tour-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; }
+.tour-nav { display: flex; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-ring, .tour-card { transition: none; }
+}
 
 /* Progress */
 .aside { padding-top: clamp(16px, 6vh, 72px); }

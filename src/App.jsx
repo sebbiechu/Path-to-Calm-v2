@@ -14,6 +14,7 @@ import { logSessionStart, shareMood } from './lib/telemetry.js';
 import { applyCompletion } from './lib/stats.js';
 import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
+import Tour from './components/Tour.jsx';
 import * as audio from './lib/audio.js';
 import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/storage.js';
 
@@ -87,6 +88,9 @@ export default function App() {
     newBadgesRef.current = newBadges;
   }, [newBadges]);
   const [modal, setModal] = useState(() => (read(DISCLAIMER_KEY) === DISCLAIMER_VERSION ? null : 'disclaimer-block'));
+  const [tourDone, setTourDone] = useState(() => read('ptc.tourDone') === '1');
+  const [touring, setTouring] = useState(false);
+  const [shareAsked, setShareAsked] = useState(() => read('ptc.shareAsked') === '1');
   const [stage, setStage] = useState(null); // null | 'mood' | 'session'
   const [moodBefore, setMoodBefore] = useState(null);
   const [moods, setMoods] = useState(loadMoods);
@@ -109,6 +113,23 @@ export default function App() {
     setNewBadges((n) => [...n, ...fresh]);
   }, [badgeStatus, earned]);
   useEffect(() => writeJSON('ptc.moods', moods.slice(-365)), [moods]);
+
+  // First visit: show the tour once the disclaimer is accepted
+  useEffect(() => {
+    if (!tourDone && modal === null && stage === null) setTouring(true);
+  }, [tourDone, modal, stage]);
+
+  const endTour = useCallback(() => {
+    setTouring(false);
+    setTourDone(true);
+    write('ptc.tourDone', '1');
+  }, []);
+
+  const answerShare = (yes) => {
+    setSettings((s) => ({ ...s, shareMood: yes }));
+    setShareAsked(true);
+    write('ptc.shareAsked', '1');
+  };
 
   // Theme: apply now, and follow the phone if set to system
   useEffect(() => {
@@ -190,17 +211,22 @@ export default function App() {
           />
 
           <div className="actions">
-            <button type="button" className="btn primary large" onClick={start}>
+            <button type="button" className="btn primary large" onClick={start} data-tour="start">
               Start session
             </button>
-            <button type="button" className="btn quiet large" onClick={() => setModal('settings')}>
+            <button type="button" className="btn quiet large" onClick={() => setModal('settings')} data-tour="settings">
               Settings
             </button>
           </div>
 
-          <button type="button" className="link-btn subtle" onClick={() => setModal('disclaimer')}>
-            Medical disclaimer
-          </button>
+          <div className="meta-links">
+            <button type="button" className="link-btn subtle" onClick={() => setTouring(true)}>
+              How it works
+            </button>
+            <button type="button" className="link-btn subtle" onClick={() => setModal('disclaimer')}>
+              Medical disclaimer
+            </button>
+          </div>
         </main>
 
         <aside className="aside">
@@ -211,6 +237,8 @@ export default function App() {
             earned={earned}
             status={badgeStatus}
             onOpenBadge={(id) => setOpenBadge({ id })}
+            showSharePrompt={settings.moodCheck && !settings.shareMood && !shareAsked && moods.length > 0}
+            onShareAnswer={answerShare}
           />
         </aside>
       </div>
@@ -248,6 +276,8 @@ export default function App() {
           }}
         />
       )}
+
+      {touring && <Tour onClose={endTour} />}
 
       {(badgeQueue.length > 0 || openBadge) && (
         <BadgeModal
