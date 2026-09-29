@@ -12,7 +12,7 @@ A calming breathing app to help you pause, breathe and feel better, anytime, any
 - Keeps the screen awake during a session and pauses if the phone locks
 - Installable as an app (PWA) and works offline
 - Light and dark mode, following the device by default
-- Optional vibration and spoken cues for eyes-closed breathing
+- Voice cues for each phase, plus optional vibration for breathing silently (Android)
 - Mood check before and after sessions, with an optional anonymous share
 
 ## Local development
@@ -50,7 +50,7 @@ src/
   lib/storage.js        safe localStorage helpers
   lib/telemetry.js      optional anonymous logging (plain fetch)
   lib/stats.js          streaks and mood summaries
-  lib/cues.js           vibration and spoken cues
+  lib/cues.js           vibration cues
   lib/__tests__/        Vitest tests
   styles/               tokens, base, home, modal, session
 ```

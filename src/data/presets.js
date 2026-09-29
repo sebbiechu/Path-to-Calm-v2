@@ -75,7 +75,6 @@ export function defaultSettings(preset = PRESETS[0]) {
     moodCheck: true,
     shareMood: false,
     vibrate: false,
-    voice: false,
   };
 }
 

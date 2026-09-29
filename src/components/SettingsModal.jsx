@@ -4,7 +4,7 @@ import RhythmBar from './RhythmBar.jsx';
 import { buildSteps, totalMs } from '../lib/engine.js';
 import { aboutMinutes } from '../lib/format.js';
 import { findPreset } from '../data/presets.js';
-import { canSpeak, canVibrate } from '../lib/cues.js';
+import { canVibrate } from '../lib/cues.js';
 import Tip from './Tip.jsx';
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
@@ -250,18 +250,9 @@ export default function SettingsModal({ settings, onSave, onClose }) {
           <Toggle
             id="vibrate"
             label="Vibrate on each phase"
-            hint="So you can breathe with your eyes closed"
+            hint="A gentle buzz at each phase, so you can breathe silently with the sound off"
             checked={draft.vibrate}
             onChange={set('vibrate')}
-          />
-        )}
-        {canSpeak && (
-          <Toggle
-            id="voice"
-            label="Spoken cues"
-            hint="Says “breathe in”, “hold” and “breathe out” instead of playing sounds"
-            checked={draft.voice}
-            onChange={set('voice')}
           />
         )}
       </section>

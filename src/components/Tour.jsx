@@ -16,7 +16,7 @@ const STEPS = [
   {
     target: 'settings',
     title: 'Make it yours',
-    body: 'Change timings and rounds, switch to dark mode, or turn on spoken cues so you can breathe with your eyes closed.',
+    body: 'Change timings and rounds, and switch to dark mode. On a phone, you can also turn on vibration to breathe silently with the sound off.',
   },
   {
     target: 'progress',

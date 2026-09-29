@@ -68,7 +68,7 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
   const pauseBtnRef = useRef(null);
   const statusRef = useRef(status);
   const callbacks = useRef({ onComplete, onExit });
-  const cueRef = useRef({ vibrate: settings.vibrate, voice: settings.voice, muted });
+  const cueRef = useRef({ vibrate: settings.vibrate });
 
   useEffect(() => {
     statusRef.current = status;
@@ -78,8 +78,8 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
   }, [onComplete, onExit]);
 
   useEffect(() => {
-    cueRef.current = { vibrate: settings.vibrate, voice: settings.voice, muted };
-  }, [settings.vibrate, settings.voice, muted]);
+    cueRef.current = { vibrate: settings.vibrate };
+  }, [settings.vibrate]);
 
   useEffect(() => {
     audio.setMuted(muted);
@@ -93,9 +93,7 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
     const engine = createEngine(steps, {
       onStep: (st) => {
         setStep(st);
-        // Spoken cues replace the sound effects so they don't talk over each other
-        if (cueRef.current.voice) audio.stopAll();
-        else audio.playPhase(st.phase);
+        audio.playPhase(st.phase);
         cue(st.phase, cueRef.current);
       },
       onDone: () => {
