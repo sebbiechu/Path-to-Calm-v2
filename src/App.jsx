@@ -15,6 +15,7 @@ import { applyCompletion } from './lib/stats.js';
 import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
 import Tour from './components/Tour.jsx';
+import { FEEDBACK_URL } from './data/links.js';
 import ShareNotice from './components/ShareNotice.jsx';
 import * as audio from './lib/audio.js';
 import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/storage.js';
@@ -283,6 +284,9 @@ export default function App() {
             <button type="button" className="link-btn subtle" onClick={() => setTouring(true)}>
               How it works
             </button>
+            <a className="link-btn subtle" href={FEEDBACK_URL} target="_blank" rel="noopener noreferrer">
+              Give feedback
+            </a>
             <button type="button" className="link-btn subtle" onClick={() => setModal('disclaimer')}>
               Medical disclaimer
             </button>
