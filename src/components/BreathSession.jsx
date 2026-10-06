@@ -214,7 +214,7 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
     <div className={`session phase-${phase}`} role="dialog" aria-modal="true" aria-label="Breathing session">
       <div className="session-glow" aria-hidden="true" />
 
-      <header className="session-top">
+      <div className="session-top">
         <span className="session-name">{label}</span>
         <div className="session-top-right">
           <span className="session-clock" aria-label="Time remaining">
@@ -233,9 +233,9 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
             </svg>
           </button>
         </div>
-      </header>
+      </div>
 
-      <main className="session-stage">
+      <div className="session-stage">
         <div className="orb-frame">
           <svg className="orb-ring" viewBox="0 0 100 100" aria-hidden="true">
             <circle className="ring-track" cx="50" cy="50" r="48" pathLength="1" />
@@ -288,9 +288,9 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
             </div>
           </div>
         )}
-      </main>
+      </div>
 
-      <footer className="session-controls">
+      <div className="session-controls">
         {done ? (
           <button type="button" className="btn primary" onClick={exit} ref={pauseBtnRef}>
             Finish
@@ -308,7 +308,7 @@ export default function BreathSession({ settings, label, moodBefore = null, newB
             </button>
           </>
         )}
-      </footer>
+      </div>
     </div>
   );
 }

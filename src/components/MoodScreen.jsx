@@ -18,17 +18,17 @@ export default function MoodScreen({ label, onPick, onSkip, onCancel }) {
   return (
     <div className="session phase-ready" role="dialog" aria-modal="true" aria-label="Mood check">
       <div className="session-glow" aria-hidden="true" />
-      <header className="session-top">
+      <div className="session-top">
         <span className="session-name">{label}</span>
-      </header>
-      <main className="session-stage">
+      </div>
+      <div className="session-stage">
         <MoodPicker question="How are you feeling right now?" onPick={onPick} onSkip={onSkip} />
-      </main>
-      <footer className="session-controls">
+      </div>
+      <div className="session-controls">
         <button type="button" className="btn quiet" onClick={onCancel}>
           Back
         </button>
-      </footer>
+      </div>
     </div>
   );
 }

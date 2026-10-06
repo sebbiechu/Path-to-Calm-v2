@@ -107,7 +107,7 @@ export default function ProgressPanel({ stats, weekDays, moods, earned, status, 
           <dd>{weekDays}</dd>
         </div>
         <div>
-          <dt>Sessions</dt>
+          <dt>Completed</dt>
           <dd>{stats.sessions}</dd>
         </div>
       </dl>

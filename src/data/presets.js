@@ -56,6 +56,9 @@ export const PRESETS = [
 // Defaults before v2.4, so untouched settings can move to the new, shorter ones
 export const OLD_DEFAULT_BREATHS = { abdominal: 30, pursed: 20, '478': 8, coherent: 24, extended: 20 };
 
+// Quick calm: one minute of extended exhale, no setup and no mood check
+export const QUICK_CALM = { inhale: 4, hold: 0, exhale: 8, breaths: 5, rounds: 1, rest: 0, holdIncrease: 0, getReady: 3 };
+
 export const findPreset = (id) => PRESETS.find((p) => p.id === id) || PRESETS[0];
 
 export function defaultSettings(preset = PRESETS[0]) {

@@ -5,7 +5,7 @@ import SettingsModal from './components/SettingsModal.jsx';
 import DisclaimerModal from './components/DisclaimerModal.jsx';
 import ProgressPanel from './components/ProgressPanel.jsx';
 import BreathSession from './components/BreathSession.jsx';
-import { PRESETS, findPreset, defaultSettings, isCustomised, OLD_DEFAULT_BREATHS } from './data/presets.js';
+import { PRESETS, findPreset, defaultSettings, isCustomised, OLD_DEFAULT_BREATHS, QUICK_CALM } from './data/presets.js';
 import { BADGES, LEGACY_XP, findBadge } from './data/badges.js';
 import { evaluateBadges, daysThisWeek } from './lib/badges.js';
 import BadgeModal from './components/BadgeModal.jsx';
@@ -17,6 +17,7 @@ import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
 import Tour from './components/Tour.jsx';
 import { FEEDBACK_URL } from './data/links.js';
+import FeedbackNudge from './components/FeedbackNudge.jsx';
 import ShareNotice from './components/ShareNotice.jsx';
 import * as audio from './lib/audio.js';
 import { read, write, readNumber, readJSON, writeJSON, localDay } from './lib/storage.js';
@@ -127,6 +128,7 @@ export default function App() {
   const [tourDone, setTourDone] = useState(() => read('ptc.tourDone') === '1');
   const [touring, setTouring] = useState(false);
   const [shareAsked, setShareAsked] = useState(() => read('ptc.shareAsked') === '1');
+  const [feedbackAsked, setFeedbackAsked] = useState(() => read('ptc.feedbackAsked') === '1');
   const [shareNoticed, setShareNoticed] = useState(() => read('ptc.shareNoticed') === '1');
   const [stage, setStage] = useState(null); // null | 'mood' | 'session'
   const [moodBefore, setMoodBefore] = useState(null);
@@ -191,6 +193,7 @@ export default function App() {
     setShareNoticed(true);
     write('ptc.shareNoticed', '1');
   };
+  const overlayOpen = Boolean(modal || touring || openBadge || badgeQueue.length || stage);
   const showNotice = IS_COLLEAGUE && !shareNoticed && !shareAsked && tourDone && !touring && modal === null && stage === null;
 
   // Theme: apply now, and follow the phone if set to system
@@ -206,14 +209,27 @@ export default function App() {
   const preset = findPreset(settings.presetId);
   const durationMs = useMemo(() => totalMs(buildSteps(settings)), [settings]);
 
-  const start = () => {
+  // The session being run: the user's own settings, or Quick calm
+  const [active, setActive] = useState(null); // { settings, label, logPreset }
+
+  const start = (quick = false) => {
     audio.unlock();
+    const run = quick
+      ? {
+          settings: { ...settings, ...QUICK_CALM, presetId: 'extended', moodCheck: false },
+          label: 'Quick calm',
+          logPreset: 'quick',
+        }
+      : { settings, label: preset.label, logPreset: settings.presetId };
+    run.plannedSeconds = Math.round(totalMs(buildSteps(run.settings)) / 1000);
+    setActive(run);
+
     const starts = readNumber('ptc.starts', 0) + 1;
     write('ptc.starts', String(starts));
     if (settings.shareUsage) {
       logSessionStart({
-        preset: settings.presetId,
-        plannedSeconds: Math.round(durationMs / 1000),
+        preset: run.logPreset,
+        plannedSeconds: run.plannedSeconds,
         audience: IS_COLLEAGUE ? 'colleague' : 'public',
         device: deviceType(),
         installed: isInstalled(),
@@ -222,7 +238,7 @@ export default function App() {
     }
     setMoodBefore(null);
     setNewBadges([]);
-    setStage(settings.moodCheck ? 'mood' : 'session');
+    setStage(run.settings.moodCheck ? 'mood' : 'session');
   };
 
   const beginBreathing = (mood) => {
@@ -232,27 +248,27 @@ export default function App() {
 
   const handleMood = useCallback(
     (after, seconds) => {
-      const entry = { day: localDay(), preset: settings.presetId, before: moodBefore, after, seconds };
+      const entry = { day: localDay(), preset: active.settings.presetId, before: moodBefore, after, seconds };
       setMoods((m) => [...m, entry]);
       if (settings.shareMood) shareMood(entry);
     },
-    [moodBefore, settings.presetId, settings.shareMood]
+    [moodBefore, active, settings.shareMood]
   );
 
   // Full session finished: minutes, session count and a history entry for badges
   const logEnd = useCallback(
     (seconds, completed) => {
-      if (!settings.shareUsage) return;
+      if (!settings.shareUsage || !active) return;
       logSessionEnd({
-        preset: settings.presetId,
-        plannedSeconds: Math.round(durationMs / 1000),
+        preset: active.logPreset,
+        plannedSeconds: active.plannedSeconds,
         seconds,
         completed,
         audience: IS_COLLEAGUE ? 'colleague' : 'public',
         device: deviceType(),
       });
     },
-    [settings.shareUsage, settings.presetId, durationMs]
+    [settings.shareUsage, active]
   );
 
   const handleComplete = useCallback(
@@ -261,10 +277,17 @@ export default function App() {
       setStats((s) => applyCompletion(s, seconds));
       setHistory((h) => [
         ...h,
-        { day: localDay(), hour: new Date().getHours(), preset: settings.presetId, seconds, rounds: settings.rounds },
+        {
+          day: localDay(),
+          hour: new Date().getHours(),
+          preset: active.settings.presetId,
+          seconds,
+          rounds: active.settings.rounds,
+          quick: active.logPreset === 'quick',
+        },
       ]);
     },
-    [settings.presetId, settings.rounds, logEnd]
+    [active, logEnd]
   );
 
   // Leaving early still counts the minutes you breathed. On finishing, show any new badge.
@@ -283,6 +306,7 @@ export default function App() {
 
   return (
     <div className={`page${showNotice ? ' has-notice' : ''}`}>
+      <div className="page-content" inert={overlayOpen || undefined}>
       <header className="site-header">
         <img className="logo logo-light" src="/images/people_logo.svg" alt="People Development" />
         <img className="logo logo-dark" src="/images/white_people_logo.svg" alt="People Development" />
@@ -304,13 +328,25 @@ export default function App() {
           />
 
           <div className="actions">
-            <button type="button" className="btn primary large" onClick={start} data-tour="start">
+            <button type="button" className="btn primary large" onClick={() => start()} data-tour="start">
               Start session
+            </button>
+            <button type="button" className="btn quiet large quick" onClick={() => start(true)} data-tour="quick">
+              Quick calm <span className="btn-note">1 min</span>
             </button>
             <button type="button" className="btn quiet large" onClick={() => setModal('settings')} data-tour="settings">
               Settings
             </button>
           </div>
+
+          {stats.sessions >= 3 && !feedbackAsked && stage === null && (
+            <FeedbackNudge
+              onDone={() => {
+                setFeedbackAsked(true);
+                write('ptc.feedbackAsked', '1');
+              }}
+            />
+          )}
 
           <div className="meta-links">
             <button type="button" className="link-btn subtle" onClick={() => setTouring(true)}>
@@ -337,6 +373,7 @@ export default function App() {
             onShareAnswer={answerShare}
           />
         </aside>
+      </div>
       </div>
 
       {modal === 'picker' && (
@@ -390,19 +427,19 @@ export default function App() {
         />
       )}
 
-      {stage === 'mood' && (
+      {stage === 'mood' && active && (
         <MoodScreen
-          label={preset.label}
+          label={active.label}
           onPick={beginBreathing}
           onSkip={() => beginBreathing(null)}
           onCancel={() => setStage(null)}
         />
       )}
 
-      {stage === 'session' && (
+      {stage === 'session' && active && (
         <BreathSession
-          settings={settings}
-          label={preset.label}
+          settings={active.settings}
+          label={active.label}
           moodBefore={moodBefore}
           newBadges={newBadges.map(findBadge)}
           onComplete={handleComplete}

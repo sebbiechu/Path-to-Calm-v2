@@ -63,7 +63,7 @@ export default function Modal({ title, onClose, dismissible = true, className = 
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <header className="modal-header">
+        <div className="modal-header">
           <h2 id={titleId}>{title}</h2>
           {dismissible && (
             <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
@@ -72,9 +72,9 @@ export default function Modal({ title, onClose, dismissible = true, className = 
               </svg>
             </button>
           )}
-        </header>
+        </div>
         <div className="modal-body">{children}</div>
-        {footer && <footer className="modal-footer">{footer}</footer>}
+        {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>
   );

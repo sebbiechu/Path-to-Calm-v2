@@ -11,7 +11,7 @@ const STEPS = [
   {
     target: 'start',
     title: 'Follow the circle',
-    body: 'Press Start session, then breathe with the circle. It grows as you breathe in and shrinks as you breathe out. You can pause at any time.',
+    body: 'Press Start session, then breathe with the circle. It grows as you breathe in and shrinks as you breathe out. Short on time? Quick calm takes one minute.',
   },
   {
     target: 'settings',
