@@ -293,6 +293,13 @@ export default function SettingsModal({ settings, onSave, onClose, onReset }) {
           disabled={!draft.moodCheck}
           onChange={set('shareMood')}
         />
+        <Toggle
+          id="shareUsage"
+          label="Share anonymous usage statistics"
+          hint="Which exercise you chose, whether you finished, and whether you use a phone or computer. Helps us improve Path to Calm. Nothing that identifies you."
+          checked={draft.shareUsage}
+          onChange={set('shareUsage')}
+        />
         {canVibrate && (
           <Toggle
             id="vibrate"

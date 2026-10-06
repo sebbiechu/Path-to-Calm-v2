@@ -10,7 +10,8 @@ import { BADGES, LEGACY_XP, findBadge } from './data/badges.js';
 import { evaluateBadges, daysThisWeek } from './lib/badges.js';
 import BadgeModal from './components/BadgeModal.jsx';
 import { buildSteps, totalMs } from './lib/engine.js';
-import { logSessionStart, shareMood } from './lib/telemetry.js';
+import { logSessionStart, logSessionEnd, shareMood } from './lib/telemetry.js';
+import { visitBucket, deviceType, isInstalled } from './lib/context.js';
 import { applyCompletion } from './lib/stats.js';
 import { applyTheme } from './lib/theme.js';
 import MoodScreen from './components/MoodScreen.jsx';
@@ -207,7 +208,18 @@ export default function App() {
 
   const start = () => {
     audio.unlock();
-    logSessionStart();
+    const starts = readNumber('ptc.starts', 0) + 1;
+    write('ptc.starts', String(starts));
+    if (settings.shareUsage) {
+      logSessionStart({
+        preset: settings.presetId,
+        plannedSeconds: Math.round(durationMs / 1000),
+        audience: IS_COLLEAGUE ? 'colleague' : 'public',
+        device: deviceType(),
+        installed: isInstalled(),
+        visit: visitBucket(starts),
+      });
+    }
     setMoodBefore(null);
     setNewBadges([]);
     setStage(settings.moodCheck ? 'mood' : 'session');
@@ -228,26 +240,46 @@ export default function App() {
   );
 
   // Full session finished: minutes, session count and a history entry for badges
+  const logEnd = useCallback(
+    (seconds, completed) => {
+      if (!settings.shareUsage) return;
+      logSessionEnd({
+        preset: settings.presetId,
+        plannedSeconds: Math.round(durationMs / 1000),
+        seconds,
+        completed,
+        audience: IS_COLLEAGUE ? 'colleague' : 'public',
+        device: deviceType(),
+      });
+    },
+    [settings.shareUsage, settings.presetId, durationMs]
+  );
+
   const handleComplete = useCallback(
     (seconds) => {
+      logEnd(seconds, true);
       setStats((s) => applyCompletion(s, seconds));
       setHistory((h) => [
         ...h,
         { day: localDay(), hour: new Date().getHours(), preset: settings.presetId, seconds, rounds: settings.rounds },
       ]);
     },
-    [settings.presetId, settings.rounds]
+    [settings.presetId, settings.rounds, logEnd]
   );
 
   // Leaving early still counts the minutes you breathed. On finishing, show any new badge.
-  const handleExit = useCallback(({ seconds, completed }) => {
-    if (!completed && seconds > 0) {
-      setStats((s) => ({ ...s, totalSeconds: s.totalSeconds + seconds }));
-    }
-    setStage(null);
-    setBadgeQueue(newBadgesRef.current);
-    setNewBadges([]);
-  }, []);
+  const handleExit = useCallback(
+    ({ seconds, completed }) => {
+      if (!completed) {
+        logEnd(seconds, false);
+        if (seconds > 0) setStats((s) => ({ ...s, totalSeconds: s.totalSeconds + seconds }));
+      }
+      setStage(null);
+      setBadgeQueue(newBadgesRef.current);
+      setNewBadges([]);
+    },
+    [logEnd]
+  );
 
   return (
     <div className={`page${showNotice ? ' has-notice' : ''}`}>

@@ -24,8 +24,13 @@ async function insert(table, row) {
   }
 }
 
-// Counts sessions started. No user data.
-export const logSessionStart = () => insert('sessions', {});
+// A session started: exercise, planned length and anonymous context. No user data.
+export const logSessionStart = ({ preset, plannedSeconds, audience, device, installed, visit }) =>
+  insert('sessions', { preset, planned_seconds: plannedSeconds, audience, device, installed, visit });
+
+// A session ended, either finished or ended early. Sessions with no end row were abandoned (tab closed).
+export const logSessionEnd = ({ preset, plannedSeconds, seconds, completed, audience, device }) =>
+  insert('session_ends', { preset, planned_seconds: plannedSeconds, seconds, completed, audience, device });
 
 // Only called when the user has opted in. Scores, exercise and length only.
 export const shareMood = ({ preset, before, after, seconds }) =>

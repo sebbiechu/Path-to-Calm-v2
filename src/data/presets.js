@@ -74,6 +74,7 @@ export function defaultSettings(preset = PRESETS[0]) {
     theme: 'system', // system | light | dark
     moodCheck: true,
     shareMood: false,
+    shareUsage: true, // anonymous usage statistics; can be switched off in Settings
     vibrate: false,
   };
 }
